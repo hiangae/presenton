@@ -1,0 +1,20 @@
+services:
+  presenton:
+    build:
+      context: .
+    image: presenton:oidc     
+    stdin_open: true
+    tty: true
+    container_name: presenton
+    hostname: presenton
+    ports:
+      - 5001:80
+    volumes:
+      - /opt/volumes/presentation/app_data:/app_data
+    networks:
+      - openwebui-net
+    restart: unless-stopped
+networks:
+  openwebui-net:
+    external: true
+

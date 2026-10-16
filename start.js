@@ -40,7 +40,6 @@ const nginxRuntimeConfigPath = "/etc/nginx/nginx.conf";
 const args = process.argv.slice(2);
 const hasDevArg = args.includes("--dev") || args.includes("-d");
 const isDev = hasDevArg;
-const canChangeKeys = process.env.CAN_CHANGE_KEYS !== "false";
 
 const fastapiPort = 8000;
 const nextjsPort = 3000;
@@ -755,9 +754,7 @@ const main = async () => {
     await ensurePresentationExportNodeDependencies();
   }
 
-  if (canChangeKeys) {
-    setupUserConfigFromEnv();
-  }
+  setupUserConfigFromEnv();
 
   syncNginxConfigForDev();
 

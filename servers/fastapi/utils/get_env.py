@@ -14,10 +14,6 @@ def _is_truthy(value: str | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def get_can_change_keys_env():
-    return os.getenv("CAN_CHANGE_KEYS")
-
-
 def get_presenton_public_url() -> str | None:
     value = (os.getenv("PRESENTON_PUBLIC_URL") or "").strip().rstrip("/")
     if value.startswith(("http://", "https://")):

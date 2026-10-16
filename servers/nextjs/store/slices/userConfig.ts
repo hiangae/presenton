@@ -2,7 +2,7 @@ import { LLMConfig } from "@/types/llm_config";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserConfigState {
-  can_change_keys: boolean
+  role: "admin" | "user" | null
   llm_config: LLMConfig
 }
 
@@ -12,7 +12,7 @@ const initialState: UserConfigState = {
     IMAGE_PROVIDER: "gpt-image-1.5",
 
   },
-  can_change_keys: false,
+  role: null,
 }
 
 const userConfigSlice = createSlice({
@@ -22,11 +22,11 @@ const userConfigSlice = createSlice({
     setLLMConfig: (state, action: PayloadAction<LLMConfig>) => {
       state.llm_config = action.payload;
     },
-    setCanChangeKeys: (state, action: PayloadAction<boolean>) => {
-      state.can_change_keys = action.payload;
+    setUserRole: (state, action: PayloadAction<UserConfigState["role"]>) => {
+      state.role = action.payload;
     }
   },
 });
 
-export const { setLLMConfig, setCanChangeKeys } = userConfigSlice.actions;
+export const { setLLMConfig, setUserRole } = userConfigSlice.actions;
 export default userConfigSlice.reducer;

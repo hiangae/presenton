@@ -223,3 +223,21 @@ def test_public_paths_include_oidc_login():
     middleware = SessionAuthMiddleware(app=None)
     assert "/api/v1/auth/oidc/login" in middleware._PUBLIC_AUTH_PATHS
     assert "/api/v1/auth/oidc/callback" in middleware._PUBLIC_AUTH_PATHS
+
+
+def test_auth_router_registers_oidc_login_paths():
+    """Regression: the login router must not duplicate the /api/v1/auth prefix."""
+    from api.v1.auth.router import API_V1_AUTH_ROUTER
+
+    paths = set()
+    for route in API_V1_AUTH_ROUTER.routes:
+        # Included routers are wrapped (_IncludedRouter); resolve their
+        # effective paths from the include prefix + original router routes.
+        if type(route).__name__ == "_IncludedRouter":
+            prefix = getattr(route.include_context, "prefix", "") or ""
+            for sub in route.original_router.routes:
+                paths.add(prefix + getattr(sub, "path", ""))
+        else:
+            paths.add(getattr(route, "path", ""))
+    assert "/api/v1/auth/oidc/login" in paths
+    assert "/api/v1/auth/oidc/callback" in paths

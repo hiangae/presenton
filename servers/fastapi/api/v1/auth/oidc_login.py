@@ -40,7 +40,9 @@ from utils.get_env import (
 
 logger = logging.getLogger(__name__)
 
-OIDC_LOGIN_ROUTER = APIRouter(prefix="/api/v1/auth/oidc", tags=["Auth"])
+# Mounted under API_V1_AUTH_ROUTER (prefix /api/v1/auth), so the effective
+# paths are /api/v1/auth/oidc/login and /api/v1/auth/oidc/callback.
+OIDC_LOGIN_ROUTER = APIRouter(prefix="/oidc", tags=["Auth"])
 
 # Short-lived state cookie that binds the callback to this browser tab.
 _STATE_COOKIE = "presenton_oidc_state"

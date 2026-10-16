@@ -27,6 +27,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unit tests in `tests/unit/test_oidc_auth.py` covering token verification,
     claim extraction, user provisioning, principal resolution, API-key
     precedence, and middleware admin-route handling.
+- Browser OIDC login link on the sign-in page (Authorization Code flow with
+  PKCE). When `OIDC_CLIENT_ID` is set, the login screen shows a "Sign in with
+  your identity provider" link that redirects to the IdP's authorization page;
+  after sign-in the callback exchanges the code for tokens, verifies the access
+  token against the issuer's JWKS, resolves/provisions the local user, and sets
+  the same session cookie used by username/password login.
+  - New `api/v1/auth/oidc_login.py`: `GET /api/v1/auth/oidc/login` (redirects to
+    the IdP) and `GET /api/v1/auth/oidc/callback` (completes the exchange).
+  - New environment variables: `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`,
+    `OIDC_REDIRECT_URI`, `OIDC_SCOPES` (documented in `docker-compose.yml`).
+  - `GET /api/v1/auth/oidc/status` now also reports `login_enabled`.
+  - Unit tests in `tests/unit/test_oidc_login.py` covering the authorization
+    redirect, PKCE/state handling, code exchange, session setup, and denial of
+    unmapped identities.
 
 ### Changed
 - `AuthPrincipal.method` now supports `"oidc"` alongside `"jwt"` and `"api_key"`.

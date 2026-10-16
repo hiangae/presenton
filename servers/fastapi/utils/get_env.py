@@ -126,6 +126,35 @@ def is_oidc_user_provisioning_enabled() -> bool:
     return _is_truthy(os.getenv("OIDC_USER_PROVISIONING", "true"))
 
 
+# External OIDC browser login (Authorization Code + PKCE).
+# These power the "Sign in with your identity provider" link on the login page.
+# They are separate from the bearer-token settings above because a browser
+# login needs a registered OAuth client (and optionally a secret), whereas the
+# bearer path only verifies tokens against the issuer's JWKS.
+
+def get_oidc_client_id_env() -> str:
+    return (os.getenv("OIDC_CLIENT_ID") or "").strip()
+
+
+def get_oidc_client_secret_env() -> str:
+    return (os.getenv("OIDC_CLIENT_SECRET") or "").strip()
+
+
+def get_oidc_redirect_uri_env() -> str:
+    """Explicit callback URL. When empty it is derived from the request origin."""
+    return (os.getenv("OIDC_REDIRECT_URI") or "").strip()
+
+
+def get_oidc_scopes_env() -> str:
+    value = (os.getenv("OIDC_SCOPES") or "").strip()
+    return value or "openid profile email"
+
+
+def is_oidc_login_enabled() -> bool:
+    """Browser OIDC login requires an enabled OIDC setup plus a client id."""
+    return is_oidc_enabled() and bool(get_oidc_client_id_env())
+
+
 def is_presenton_electron_desktop():
     """True when running inside the Presenton Electron desktop app."""
     return _is_truthy(os.getenv("PRESENTON_ELECTRON"))

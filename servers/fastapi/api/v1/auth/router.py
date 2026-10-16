@@ -18,6 +18,7 @@ from services.database import get_async_session
 from utils.get_env import (
     is_disable_auth_enabled,
     is_oidc_enabled,
+    is_oidc_login_enabled,
     is_oidc_user_provisioning_enabled,
 )
 from api.v1.auth.config import (
@@ -26,10 +27,12 @@ from api.v1.auth.config import (
     persist_admin_credentials,
 )
 from api.v1.auth.presenton_oauth import PRESENTON_OAUTH_ROUTER
+from api.v1.auth.oidc_login import OIDC_LOGIN_ROUTER
 
 
 API_V1_AUTH_ROUTER = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 API_V1_AUTH_ROUTER.include_router(PRESENTON_OAUTH_ROUTER)
+API_V1_AUTH_ROUTER.include_router(OIDC_LOGIN_ROUTER)
 
 
 def normalize_username(username: str) -> str:
@@ -113,9 +116,10 @@ async def verify_session(
 
 @API_V1_AUTH_ROUTER.get("/oidc/status")
 async def oidc_status():
-    """Expose whether external OIDC bearer-token login is available."""
+    """Expose whether external OIDC auth and browser login are available."""
     return {
         "enabled": is_oidc_enabled(),
+        "login_enabled": is_oidc_login_enabled(),
         "user_provisioning": is_oidc_user_provisioning_enabled(),
     }
 

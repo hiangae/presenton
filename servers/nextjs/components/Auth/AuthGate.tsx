@@ -36,6 +36,7 @@ export default function AuthGate() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [oidcLoginEnabled, setOidcLoginEnabled] = useState(false);
   const isSetupMode = useMemo(() => !status.configured, [status.configured]);
 
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function AuthGate() {
     }
 
     void refreshStatus();
+    void refreshOidcStatus();
   }, []);
 
   useEffect(() => {
@@ -143,6 +145,25 @@ export default function AuthGate() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const refreshOidcStatus = async () => {
+    try {
+      const response = await fetch(getApiUrl("/api/v1/auth/oidc/status"), {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        return;
+      }
+      const data = (await response.json()) as {
+        login_enabled?: boolean;
+      };
+      setOidcLoginEnabled(Boolean(data.login_enabled));
+    } catch {
+      // OIDC login is optional; ignore lookup failures.
     }
   };
 
@@ -448,6 +469,27 @@ export default function AuthGate() {
                 : "Sign in"}
           </button>
         </form>
+
+        {oidcLoginEnabled ? (
+          <div className="mt-7">
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-[#EDEEEF]" />
+              <span className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+                or
+              </span>
+              <span className="h-px flex-1 bg-[#EDEEEF]" />
+            </div>
+            <a
+              href={getApiUrl("/api/v1/auth/oidc/login")}
+              onClick={() => {
+                trackEvent(MixpanelEvent.Auth_SignIn_Started, { method: "oidc" });
+              }}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-[58px] border border-[#E1E1E5] bg-white px-5 py-3 font-syne text-xs font-semibold text-[#374151] transition hover:border-[#7A5AF8] hover:text-[#7A5AF8]"
+            >
+              Sign in with your identity provider
+            </a>
+          </div>
+        ) : null}
       </section>
     </main>
   );

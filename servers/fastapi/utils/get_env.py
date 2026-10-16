@@ -84,6 +84,48 @@ def is_disable_auth_enabled():
     return _is_truthy(get_disable_auth_env())
 
 
+# External OIDC bearer-token authentication.
+# When enabled, an `Authorization: Bearer <token>` that is not a Presenton API
+# key is verified against the configured OIDC issuer and mapped to a local user.
+
+def is_oidc_enabled():
+    return _is_truthy(os.getenv("OIDC_ENABLED"))
+
+
+def get_oidc_issuer_env() -> str:
+    return (os.getenv("OIDC_ISSUER") or "").strip().rstrip("/")
+
+
+def get_oidc_audience_env() -> str:
+    return (os.getenv("OIDC_AUDIENCE") or "").strip()
+
+
+def get_oidc_jwks_uri_env() -> str:
+    return (os.getenv("OIDC_JWKS_URI") or "").strip()
+
+
+def get_oidc_username_claim_env() -> str:
+    value = (os.getenv("OIDC_USERNAME_CLAIM") or "").strip()
+    return value or "preferred_username"
+
+
+def get_oidc_admin_claim_env() -> str:
+    return (os.getenv("OIDC_ADMIN_CLAIM") or "").strip()
+
+
+def get_oidc_admin_value_env() -> str:
+    return (os.getenv("OIDC_ADMIN_VALUE") or "").strip()
+
+
+def is_oidc_user_provisioning_enabled() -> bool:
+    """Auto-create local users for verified OIDC identities.
+
+    Enabled by default so the first OIDC login can bootstrap an account; set
+    OIDC_USER_PROVISIONING=false to require pre-created users.
+    """
+    return _is_truthy(os.getenv("OIDC_USER_PROVISIONING", "true"))
+
+
 def is_presenton_electron_desktop():
     """True when running inside the Presenton Electron desktop app."""
     return _is_truthy(os.getenv("PRESENTON_ELECTRON"))

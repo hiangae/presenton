@@ -16,7 +16,11 @@ from api.v1.auth.users import get_jwt_strategy
 from models.sql.user import User
 from services.database import async_session_maker
 from services.presenton_cloud_proxy import maybe_proxy_presenton_cloud_request
-from utils.get_env import get_can_change_keys_env, is_disable_auth_enabled
+from utils.get_env import (
+    get_can_change_keys_env,
+    is_disable_auth_enabled,
+    is_oidc_enabled,
+)
 from utils.user_config import update_env_with_user_config
 
 
@@ -34,6 +38,7 @@ class SessionAuthMiddleware(BaseHTTPMiddleware):
         "/api/v1/auth/setup",
         "/api/v1/auth/login",
         "/api/v1/auth/logout",
+        "/api/v1/auth/oidc/status",
     }
     _PUBLIC_AUTH_PREFIXES: tuple[str, ...] = ()
     _PUBLIC_APP_DATA_PREFIXES = (
@@ -84,7 +89,9 @@ class SessionAuthMiddleware(BaseHTTPMiddleware):
             configured = bool(
                 await session.scalar(select(func.count()).select_from(User))
             )
-            if not configured:
+            if not configured and not is_oidc_enabled():
+                # With OIDC enabled, the first verified login provisions the
+                # bootstrap administrator, so an empty database is allowed.
                 return JSONResponse(
                     status_code=428,
                     content={
@@ -110,7 +117,11 @@ class SessionAuthMiddleware(BaseHTTPMiddleware):
                     and request.method == "POST"
                 )
             )
-            if admin_only and (principal.method != "jwt" or not principal.is_admin):
+            # Browser sessions and verified OIDC tokens both carry a trusted
+            # principal; API keys are rejected from admin-only routes.
+            if admin_only and (
+                principal.method not in {"jwt", "oidc"} or not principal.is_admin
+            ):
                 return JSONResponse(
                     status_code=403,
                     content={"detail": "Admin browser session required"},
@@ -118,14 +129,14 @@ class SessionAuthMiddleware(BaseHTTPMiddleware):
             request.state.auth_principal = principal
             request.state.current_user = user
             request.state.auth_username = principal.username
-            if principal.method == "api_key" and user is not None:
+            if principal.method in {"api_key", "oidc"} and user is not None:
                 request.state.internal_session_token = (
                     await get_jwt_strategy().write_token(user)
                 )
             context_token = set_current_owner_id(principal.user_id)
             admin_context_token = set_current_owner_is_admin(principal.is_admin)
             try:
-                if principal.method == "jwt":
+                if principal.method in {"jwt", "oidc"}:
                     cloud_response = await maybe_proxy_presenton_cloud_request(
                         request,
                         session,

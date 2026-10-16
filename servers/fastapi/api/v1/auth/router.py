@@ -15,7 +15,11 @@ from api.v1.auth.users import (
 )
 from models.sql.user import User
 from services.database import get_async_session
-from utils.get_env import is_disable_auth_enabled
+from utils.get_env import (
+    is_disable_auth_enabled,
+    is_oidc_enabled,
+    is_oidc_user_provisioning_enabled,
+)
 from api.v1.auth.config import (
     SESSION_COOKIE_NAME,
     SESSION_TTL_SECONDS,
@@ -104,6 +108,15 @@ async def verify_session(
         "authenticated": True,
         **serialize_user(user),
         "method": principal.method,
+    }
+
+
+@API_V1_AUTH_ROUTER.get("/oidc/status")
+async def oidc_status():
+    """Expose whether external OIDC bearer-token login is available."""
+    return {
+        "enabled": is_oidc_enabled(),
+        "user_provisioning": is_oidc_user_provisioning_enabled(),
     }
 
 

@@ -5,10 +5,12 @@ import uuid
 from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.v1.auth.oidc import resolve_oidc_user, verify_oidc_token
 from api.v1.auth.users import UsernameUserDatabase, UserManager, get_jwt_strategy
 from models.sql.user import User
 from api.v1.auth.config import SESSION_COOKIE_NAME
 from services.api_keys import verify_api_key
+from utils.get_env import is_oidc_enabled
 
 
 @dataclass(frozen=True)
@@ -16,7 +18,7 @@ class AuthPrincipal:
     user_id: uuid.UUID
     username: str
     is_admin: bool
-    method: Literal["jwt", "api_key"]
+    method: Literal["jwt", "api_key", "oidc"]
 
 
 async def resolve_request_principal(
@@ -41,18 +43,32 @@ async def resolve_request_principal(
     if authorization.lower().startswith("bearer "):
         token = authorization.split(" ", 1)[1].strip()
         verified = await verify_api_key(session, token)
-        if verified is None:
-            return None, None
-        user = verified.user
-        return (
-            AuthPrincipal(
-                user_id=user.id,
-                username=user.username,
-                is_admin=user.is_superuser,
-                method="api_key",
-            ),
-            user,
-        )
+        if verified is not None:
+            user = verified.user
+            return (
+                AuthPrincipal(
+                    user_id=user.id,
+                    username=user.username,
+                    is_admin=user.is_superuser,
+                    method="api_key",
+                ),
+                user,
+            )
+        if is_oidc_enabled():
+            claims = verify_oidc_token(token)
+            if claims is not None:
+                user, is_admin = await resolve_oidc_user(session, claims)
+                if user is not None:
+                    return (
+                        AuthPrincipal(
+                            user_id=user.id,
+                            username=user.username,
+                            is_admin=is_admin,
+                            method="oidc",
+                        ),
+                        user,
+                    )
+        return None, None
 
     return None, None
 
@@ -66,6 +82,6 @@ def principal_from_request(request: Request) -> AuthPrincipal:
 
 def require_browser_admin_principal(request: Request) -> AuthPrincipal:
     principal = principal_from_request(request)
-    if principal.method != "jwt" or not principal.is_admin:
+    if principal.method not in {"jwt", "oidc"} or not principal.is_admin:
         raise HTTPException(status_code=403, detail="Admin browser session required")
     return principal

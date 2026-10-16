@@ -24,6 +24,7 @@ from models.sql.template_v2 import TemplateV2
 from models.sql.slide import SlideModel
 from models.sql.webhook_subscription import WebhookSubscription
 from models.sql.user import User
+from models.sql.oidc_identity import OidcIdentity
 from models.sql.provider_settings import ProviderSettings
 from models.sql.presenton_cloud_provider import PresentonCloudProvider
 from api.v1.auth.context import get_current_owner_id
@@ -135,6 +136,7 @@ async def create_db_and_tables():
                         OllamaPullStatus.__table__,
                         User.__table__,
                         ApiKey.__table__,
+                        OidcIdentity.__table__,
                         ProviderSettings.__table__,
                         PresentonCloudProvider.__table__,
                     ],

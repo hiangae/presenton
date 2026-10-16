@@ -154,10 +154,11 @@ class FakeSession:
     def add(self, obj):
         self.added.append(obj)
 
-    def commit(self):
+    # Async: mirrors AsyncSession; calling these without await is a bug.
+    async def commit(self):
         self.commit_count += 1
 
-    def refresh(self, obj):
+    async def refresh(self, obj):
         if isinstance(obj, User):
             obj.id = obj.id or uuid.uuid4()
 
@@ -171,6 +172,9 @@ def test_resolve_oidc_user_provisions_first_user_as_admin(oidc_env):
     assert user.is_superuser is True  # first user bootstraps admin
     assert is_admin is True
     assert any(isinstance(a, OidcIdentity) for a in session.added)
+    # Regression: provisioning must actually commit (await) the new user and
+    # identity, otherwise the login succeeds but the user never reaches the DB.
+    assert session.commit_count == 2
 
 
 def test_resolve_oidc_user_maps_existing_identity(oidc_env):

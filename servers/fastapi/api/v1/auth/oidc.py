@@ -128,8 +128,8 @@ async def _provision_user(
         auth_version=1,
     )
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
     return user
 
 
@@ -162,8 +162,8 @@ async def resolve_oidc_user(
             username=username,
         )
         session.add(identity)
-        session.commit()
-        session.refresh(identity)
+        await session.commit()
+        await session.refresh(identity)
     else:
         user = await session.get(User, identity.user_id)
         if user is None or not user.is_active:

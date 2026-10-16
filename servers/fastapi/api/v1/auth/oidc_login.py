@@ -15,6 +15,7 @@ clients.
 
 import base64
 import hashlib
+import logging
 import secrets
 from typing import Any
 from urllib.parse import urlencode
@@ -36,6 +37,8 @@ from utils.get_env import (
     get_oidc_scopes_env,
     is_oidc_login_enabled,
 )
+
+logger = logging.getLogger(__name__)
 
 OIDC_LOGIN_ROUTER = APIRouter(prefix="/api/v1/auth/oidc", tags=["Auth"])
 
@@ -74,8 +77,19 @@ def _discovery_url(issuer: str) -> str:
 
 
 async def _fetch_discovery(issuer: str) -> dict[str, Any]:
-    async with httpx.AsyncClient(timeout=httpx.Timeout(15.0), follow_redirects=True) as client:
-        response = await client.get(_discovery_url(issuer))
+    try:
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(15.0), follow_redirects=True
+        ) as client:
+            response = await client.get(_discovery_url(issuer))
+    except httpx.HTTPError as exc:
+        # Unreachable issuer (bad URL, DNS failure, firewall) must surface as a
+        # readable error instead of an unhandled 500.
+        logger.warning("OIDC discovery request failed", exc_info=True)
+        raise HTTPException(
+            status_code=502,
+            detail="Could not connect to the identity provider",
+        ) from exc
     if not response.is_success:
         raise HTTPException(
             status_code=502,

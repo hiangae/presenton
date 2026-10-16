@@ -53,6 +53,26 @@ def test_is_oidc_login_requires_client_id(monkeypatch):
     assert login_module.is_oidc_login_enabled() is False
 
 
+def test_oidc_login_button_label_env(monkeypatch):
+    import utils.get_env as env
+
+    monkeypatch.delenv("OIDC_LOGIN_BUTTON_LABEL", raising=False)
+    assert (
+        env.get_oidc_login_button_label_env()
+        == "Sign in with your identity provider"
+    )
+
+    monkeypatch.setenv("OIDC_LOGIN_BUTTON_LABEL", "SSO 로그인")
+    assert env.get_oidc_login_button_label_env() == "SSO 로그인"
+
+    # Blank values fall back to the default label.
+    monkeypatch.setenv("OIDC_LOGIN_BUTTON_LABEL", "   ")
+    assert (
+        env.get_oidc_login_button_label_env()
+        == "Sign in with your identity provider"
+    )
+
+
 def test_login_redirects_to_authorize_with_pkce(login_env):
     async def fake_discovery(issuer):
         return {
@@ -230,6 +250,20 @@ def test_session_cookie_secure_override(monkeypatch):
     monkeypatch.setattr(login_module, "get_session_cookie_secure_override", lambda: None)
     # Without an override, plain http requests are not secure.
     assert login_module._secure_request(request) is False
+
+
+def test_oidc_status_exposes_login_button_label(monkeypatch):
+    from api.v1.auth.router import oidc_status
+
+    monkeypatch.setenv("OIDC_LOGIN_BUTTON_LABEL", "SSO 로그인")
+    result = asyncio.run(oidc_status())
+    assert result["login_button_label"] == "SSO 로그인"
+
+    monkeypatch.delenv("OIDC_LOGIN_BUTTON_LABEL", raising=False)
+    result = asyncio.run(oidc_status())
+    assert (
+        result["login_button_label"] == "Sign in with your identity provider"
+    )
 
 
 def test_public_paths_include_oidc_login():

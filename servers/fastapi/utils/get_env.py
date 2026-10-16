@@ -150,6 +150,16 @@ def get_oidc_scopes_env() -> str:
     return value or "openid profile email"
 
 
+def get_oidc_login_button_label_env() -> str:
+    """Label shown on the login page's OIDC sign-in link.
+
+    Set OIDC_LOGIN_BUTTON_LABEL to customize the text; defaults to the
+    built-in English label when unset.
+    """
+    value = (os.getenv("OIDC_LOGIN_BUTTON_LABEL") or "").strip()
+    return value or "Sign in with your identity provider"
+
+
 def get_session_cookie_secure_override() -> bool | None:
     """Optional manual override for the session cookie Secure flag.
 

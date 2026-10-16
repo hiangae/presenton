@@ -37,6 +37,9 @@ export default function AuthGate() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [oidcLoginEnabled, setOidcLoginEnabled] = useState(false);
+  const [oidcLoginLabel, setOidcLoginLabel] = useState(
+    "Sign in with your identity provider"
+  );
   const isSetupMode = useMemo(() => !status.configured, [status.configured]);
 
   useEffect(() => {
@@ -160,8 +163,12 @@ export default function AuthGate() {
       }
       const data = (await response.json()) as {
         login_enabled?: boolean;
+        login_button_label?: string;
       };
       setOidcLoginEnabled(Boolean(data.login_enabled));
+      if (data.login_button_label) {
+        setOidcLoginLabel(data.login_button_label);
+      }
     } catch {
       // OIDC login is optional; ignore lookup failures.
     }
@@ -486,7 +493,7 @@ export default function AuthGate() {
               }}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-[58px] border border-[#E1E1E5] bg-white px-5 py-3 font-syne text-xs font-semibold text-[#374151] transition hover:border-[#7A5AF8] hover:text-[#7A5AF8]"
             >
-              Sign in with your identity provider
+              {oidcLoginLabel}
             </a>
           </div>
         ) : null}

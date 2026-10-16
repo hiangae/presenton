@@ -16,6 +16,7 @@ from api.v1.auth.users import (
 from models.sql.user import User
 from services.database import get_async_session
 from utils.get_env import (
+    get_oidc_login_button_label_env,
     get_session_cookie_secure_override,
     is_disable_auth_enabled,
     is_oidc_enabled,
@@ -125,6 +126,7 @@ async def oidc_status():
         "enabled": is_oidc_enabled(),
         "login_enabled": is_oidc_login_enabled(),
         "user_provisioning": is_oidc_user_provisioning_enabled(),
+        "login_button_label": get_oidc_login_button_label_env(),
     }
 
 

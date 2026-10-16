@@ -48,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Secure flag on or off; useful when a reverse proxy injects
   `x-forwarded-proto: https` while browsers connect over plain http (set it to
   `false` so the browser accepts the session cookie).
+- The OIDC sign-in link label on the login page is now configurable via the
+  `OIDC_LOGIN_BUTTON_LABEL` environment variable (defaults to "Sign in with
+  your identity provider"). The label is served by `GET /api/v1/auth/oidc/status`
+  as `login_button_label`, so no frontend rebuild is needed to change it.
 
 ### Changed
 - `AuthPrincipal.method` now supports `"oidc"` alongside `"jwt"` and `"api_key"`.

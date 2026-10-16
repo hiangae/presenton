@@ -150,6 +150,21 @@ def get_oidc_scopes_env() -> str:
     return value or "openid profile email"
 
 
+def get_session_cookie_secure_override() -> bool | None:
+    """Optional manual override for the session cookie Secure flag.
+
+    Reverse proxies that inject ``x-forwarded-proto: https`` while the browser
+    actually connects over plain http cause browsers to reject Secure cookies.
+    Set SESSION_COOKIE_SECURE=false (or true) to force the flag either way.
+    """
+    value = os.getenv("SESSION_COOKIE_SECURE", "").strip().lower()
+    if value in ("1", "true", "yes"):
+        return True
+    if value in ("0", "false", "no"):
+        return False
+    return None
+
+
 def is_oidc_login_enabled() -> bool:
     """Browser OIDC login requires an enabled OIDC setup plus a client id."""
     return is_oidc_enabled() and bool(get_oidc_client_id_env())

@@ -35,6 +35,7 @@ from utils.get_env import (
     get_oidc_issuer_env,
     get_oidc_redirect_uri_env,
     get_oidc_scopes_env,
+    get_session_cookie_secure_override,
     is_oidc_login_enabled,
 )
 
@@ -60,6 +61,9 @@ def _pkce_pair() -> tuple[str, str]:
 
 
 def _secure_request(request: Request) -> bool:
+    override = get_session_cookie_secure_override()
+    if override is not None:
+        return override
     return (
         request.headers.get("x-forwarded-proto", "").lower() == "https"
         or request.url.scheme == "https"
@@ -183,8 +187,13 @@ async def oidc_login_callback(
     code_verifier = request.cookies.get("presenton_oidc_pkce")
 
     if not code or not state or not expected_state or state != expected_state:
+        logger.warning(
+            "OIDC callback rejected: state mismatch (code=%s state=%s cookie_state=%s)",
+            bool(code), bool(state), bool(expected_state),
+        )
         raise HTTPException(status_code=400, detail="Invalid or expired sign-in attempt")
     if not code_verifier:
+        logger.warning("OIDC callback rejected: missing PKCE verifier cookie")
         raise HTTPException(status_code=400, detail="Missing sign-in verification data")
 
     issuer = get_oidc_issuer_env()
@@ -226,6 +235,11 @@ async def oidc_login_callback(
         token_payload = {}
     if not token_response.is_success or not isinstance(token_payload, dict):
         detail = token_payload.get("error_description") or token_payload.get("error") or "Token exchange failed"
+        logger.warning(
+            "OIDC token exchange failed: status=%s body=%s",
+            token_response.status_code,
+            str(token_payload)[:500],
+        )
         raise HTTPException(
             status_code=401 if token_response.status_code < 500 else 502,
             detail=str(detail),
@@ -237,10 +251,15 @@ async def oidc_login_callback(
 
     claims = verify_oidc_token(access_token)
     if claims is None:
+        logger.warning("OIDC access token failed JWKS verification")
         raise HTTPException(status_code=401, detail="The identity provider token could not be verified")
 
     user, _is_admin = await resolve_oidc_user(session, claims)
     if user is None:
+        logger.warning(
+            "OIDC login denied: no local user mapped (subject=%r username=%r)",
+            claims.subject, claims.username,
+        )
         raise HTTPException(
             status_code=403,
             detail="This account is not allowed to sign in. Contact your administrator.",
@@ -249,7 +268,14 @@ async def oidc_login_callback(
     token = await get_jwt_strategy().write_token(user)
     # The browser navigated here directly, so hand off to the app root once the
     # session cookie is set; AuthGate then confirms the session and proceeds.
-    response = RedirectResponse("/", status_code=302)
+    # Keep the redirect on the same origin the callback was served from so the
+    # session cookie is always sent back to the app.
+    app_origin = f"{request.url.scheme}://{request.url.netloc}"
+    logger.info(
+        "OIDC login succeeded for user=%r (origin=%s, secure_cookie=%s)",
+        user.username, app_origin, _secure_request(request),
+    )
+    response = RedirectResponse(f"{app_origin}/", status_code=302)
     response.set_cookie(
         SESSION_COOKIE_NAME,
         token,

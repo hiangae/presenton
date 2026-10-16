@@ -16,6 +16,7 @@ from api.v1.auth.users import (
 from models.sql.user import User
 from services.database import get_async_session
 from utils.get_env import (
+    get_session_cookie_secure_override,
     is_disable_auth_enabled,
     is_oidc_enabled,
     is_oidc_login_enabled,
@@ -44,6 +45,9 @@ async def _account_count(session: AsyncSession) -> int:
 
 
 def _secure_request(request: Request) -> bool:
+    override = get_session_cookie_secure_override()
+    if override is not None:
+        return override
     return (
         request.headers.get("x-forwarded-proto", "").lower() == "https"
         or request.url.scheme == "https"

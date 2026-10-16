@@ -166,7 +166,8 @@ def test_callback_exchanges_code_and_sets_session(login_env):
     )
     response = asyncio.run(login_module.oidc_login_callback(request, session=None))
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    # Redirects to the app root on the same origin as the callback request.
+    assert response.headers["location"] == "http://localhost:5001/"
     set_cookie = response.headers.getlist("set-cookie")
     assert any("presenton_session=session-jwt" in c for c in set_cookie)
 
@@ -215,6 +216,20 @@ def test_callback_denies_unmapped_identity(login_env):
     with pytest.raises(Exception) as excinfo:
         asyncio.run(login_module.oidc_login_callback(request, session=None))
     assert excinfo.value.status_code == 403
+
+
+def test_session_cookie_secure_override(monkeypatch):
+    request = _request("/api/v1/auth/oidc/login")
+
+    monkeypatch.setattr(login_module, "get_session_cookie_secure_override", lambda: False)
+    assert login_module._secure_request(request) is False
+
+    monkeypatch.setattr(login_module, "get_session_cookie_secure_override", lambda: True)
+    assert login_module._secure_request(request) is True
+
+    monkeypatch.setattr(login_module, "get_session_cookie_secure_override", lambda: None)
+    # Without an override, plain http requests are not secure.
+    assert login_module._secure_request(request) is False
 
 
 def test_public_paths_include_oidc_login():

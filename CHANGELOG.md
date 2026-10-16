@@ -41,6 +41,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unit tests in `tests/unit/test_oidc_login.py` covering the authorization
     redirect, PKCE/state handling, code exchange, session setup, and denial of
     unmapped identities.
+- OIDC callback now logs each failure stage (state mismatch, token exchange,
+  JWKS verification, unmapped identity) and redirects to the app root on the
+  same origin as the callback request.
+- New `SESSION_COOKIE_SECURE` environment variable forces the session cookie
+  Secure flag on or off; useful when a reverse proxy injects
+  `x-forwarded-proto: https` while browsers connect over plain http (set it to
+  `false` so the browser accepts the session cookie).
 
 ### Changed
 - `AuthPrincipal.method` now supports `"oidc"` alongside `"jwt"` and `"api_key"`.

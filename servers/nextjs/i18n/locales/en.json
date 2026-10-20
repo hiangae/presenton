@@ -167,7 +167,15 @@
     "no_layouts_available": "No layouts available.",
     "could_not_add_slide": "Could not add slide",
     "add_slide_error": "Something went wrong while adding the new slide.",
-    "slide_actions": "Slide actions"
+    "slide_actions": "Slide actions",
+    "error_title": "Something went wrong",
+    "error_desc": "We couldn't load your presentation. Please try again.",
+    "navigate_with": "Navigate with",
+    "arrow_keys_aria": "arrow keys",
+    "or_thumbnails": "or the left thumbnails",
+    "dismiss_hint_aria": "Dismiss navigation hint",
+    "close_assistant_aria": "Close AI Assistant",
+    "close_tools_aria": "Close tools panel"
   },
   "editor": {
     "blocks_panel_title": "Blocks",
@@ -198,6 +206,60 @@
     "group_table_type": "Table Type",
     "layouts_count": "{{count}} Layouts",
     "create_block_aria": "Create block",
-    "add_item_aria": "Add {{label}}"
+    "add_item_aria": "Add {{label}}",
+    "slides_aria": "Presentation slides"
+  },
+  "chat": {
+    "saved_chats_aria": "Open saved chats",
+    "saved_chats_title": "Saved chats",
+    "new_chat_aria": "Start a new chat",
+    "understanding": "Understanding",
+    "thinking": "Thinking",
+    "remove_link_aria": "Remove link",
+    "remove_image_aria": "Remove pasted image",
+    "remove_document_aria": "Remove attached document",
+    "attach_files_aria": "Attach files",
+    "quick_prompts_aria": "Open quick prompts",
+    "stop_response_aria": "Stop chat response",
+    "send_prompt_aria": "Send prompt",
+    "focus_input_aria": "Focus prompt input",
+    "conversation_options_title": "Conversation options",
+    "assistant_label": "Assistant",
+    "working_aria": "Working",
+    "select_edits": "Select edits",
+    "changes_one": "Change",
+    "changes_other": "Changes",
+    "original_label": "Original",
+    "modified_label": "Modified",
+    "new_chat_label": "New chat"
+  },
+  "templates": {
+    "search_templates_aria": "Search templates",
+    "search_templates_placeholder": "Search by title or keyword",
+    "sort_templates_aria": "Sort templates",
+    "open_template": "Open template",
+    "create_new_template": "Create New Template",
+    "create_new_template_aria": "Create new template",
+    "new_template_label": "New Template",
+    "new_label_short": "New",
+    "template_library_aria": "Template library",
+    "choose_template_or": "Choose a template or",
+    "create_your_own": "create your own.",
+    "sort_name_asc": "A to Z",
+    "sort_name_desc": "Z to A",
+    "sort_newest": "Newest first",
+    "sort_oldest": "Oldest first",
+    "open_template_aria": "Open {{name}} template"
+  },
+  "community": {
+    "ai_setup": "AI Setup",
+    "prompt": "Prompt",
+    "paste_into_prompt": "Paste into the prompt field.",
+    "copy_prompt_aria": "Copy example prompt",
+    "creator": "Creator",
+    "by_author": "by {{author}}",
+    "close_preview_aria": "Close preview",
+    "search_community_aria": "Search community presentations",
+    "search_placeholder": "Search ..."
   }
 }

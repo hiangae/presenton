@@ -28,6 +28,7 @@ import React, {
   useState,
 } from "react";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import { notify } from "@/components/ui/sonner";
 import { useDispatch, useSelector } from "react-redux";
 import MarkdownRenderer from "@/components/MarkDownRender";
@@ -326,7 +327,9 @@ const ConversationControls = ({
   onSelect: (conversationId: string) => void;
   onDelete: (conversationId: string) => void;
   onNewChat: () => void;
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <div className="flex items-center gap-1.5">
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
@@ -334,8 +337,8 @@ const ConversationControls = ({
           type="button"
           disabled={isBusy}
           className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#E5E5E8] bg-white px-2.5 font-manrope text-xs font-medium text-[#55555F] shadow-sm transition-colors hover:border-[#D7D7DC] hover:bg-[#F7F7F8] hover:text-[#252529] disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Open saved chats"
-          title="Saved chats"
+          aria-label={t("chat.saved_chats_aria")}
+          title={t("chat.saved_chats_title")}
         >
           <History className="h-3.5 w-3.5" />
           Chats
@@ -427,7 +430,7 @@ const ConversationControls = ({
                         onClick={(event) => event.stopPropagation()}
                         className="mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#98A2B3] opacity-70 transition-colors hover:bg-white hover:text-[#344054] group-hover:opacity-100 data-[state=open]:bg-white data-[state=open]:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                         aria-label={`Conversation options for ${getConversationTitle(conversation)}`}
-                        title="Conversation options"
+                        title={t("chat.conversation_options_title")}
                       >
                         {isDeleting ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -466,14 +469,15 @@ const ConversationControls = ({
         "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-[#E5E5E8] bg-white font-manrope text-xs font-medium text-[#55555F] shadow-sm transition-colors hover:border-[#D7D7DC] hover:bg-[#F7F7F8] hover:text-[#252529] disabled:cursor-not-allowed disabled:opacity-50",
         showNewChatLabel ? "px-3" : "w-8",
       )}
-      aria-label="Start a new chat"
-      title="Start a new chat"
+      aria-label={t("chat.new_chat_aria")}
+      title={t("chat.new_chat_aria")}
     >
       <Plus className="h-3.5 w-3.5" />
-      {showNewChatLabel ? "New chat" : null}
+      {showNewChatLabel ? t("chat.new_chat_label") : null}
     </button>
   </div>
-);
+  );
+}
 
 const Chat = ({
   presentationId,
@@ -497,6 +501,7 @@ const Chat = ({
   onChatSendingStateChange,
   onFollowModeChange,
 }: ChatProps) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const llmConfig = useSelector(
     (state: RootState) => state.userConfig.llm_config,
@@ -2407,7 +2412,7 @@ const Chat = ({
                               <span className="flex h-[14px] w-[14px] items-start justify-center pt-0.5">
                                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#E6E6E6]" />
                               </span>
-                              <span>Understanding</span>
+                              <span>{t("chat.understanding")}</span>
                               <ActivityStatusIcon
                                 activity={{
                                   id: "fallback",
@@ -2554,7 +2559,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== link.id),
                           )
                         }
-                        aria-label="Remove link"
+                        aria-label={t("chat.remove_link_aria")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2574,7 +2579,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== image.id),
                           )
                         }
-                        aria-label="Remove pasted image"
+                        aria-label={t("chat.remove_image_aria")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2594,7 +2599,7 @@ const Chat = ({
                             previous.filter((item) => item.id !== document.id),
                           )
                         }
-                        aria-label="Remove attached document"
+                        aria-label={t("chat.remove_document_aria")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -2639,7 +2644,7 @@ const Chat = ({
                     onClick={() => fileInputRef.current?.click()}
                     disabled={!isTemplateV2Variant || chatInputDisabled}
                     className="inline-flex h-[14px] w-[14px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
-                    aria-label="Attach files"
+                    aria-label={t("chat.attach_files_aria")}
                   >
                     <Plus className="h-[14px] w-[14px] text-black" />
                   </button>
@@ -2698,7 +2703,7 @@ const Chat = ({
                       type="button"
                       disabled={chatInputDisabled}
                       className="inline-flex h-[28px] items-center gap-1.5 rounded-full border border-[#EDEEEF] bg-white px-[11px] font-syne text-xs font-medium tracking-[0.16px] text-[#191919] transition-colors hover:bg-[#FAFAFF] disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label="Open quick prompts"
+                      aria-label={t("chat.quick_prompts_aria")}
                     >
                       <Image
                         src="/ai-star.svg"
@@ -2733,7 +2738,7 @@ const Chat = ({
                   type="button"
                   onClick={stopStreaming}
                   className="flex h-8 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDEEEF] text-[#191919]"
-                  aria-label="Stop chat response"
+                  aria-label={t("chat.stop_response_aria")}
                 >
                   <Square className="h-3 w-3 fill-current" />
                 </button>
@@ -2754,7 +2759,7 @@ const Chat = ({
                       ? "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)"
                       : "#EDEEEF",
                   }}
-                  aria-label="Send prompt"
+                  aria-label={t("chat.send_prompt_aria")}
                 >
                   <ArrowUp className="h-4 w-4" />
                 </button>
@@ -3040,7 +3045,7 @@ const Chat = ({
                         ) : (
                           <ChevronRight className="h-3 w-3" />
                         )}
-                        <span>Thinking</span>
+                        <span>{t("chat.thinking")}</span>
                         {message.activity.some(
                           (item) => item.state === "running"
                         ) && (
@@ -3122,8 +3127,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
-                    aria-label="Remove link"
-                    title="Remove link"
+                    aria-label={t("chat.remove_link_aria")}
+                    title={t("chat.remove_link_aria")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3144,8 +3149,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#667085] transition-colors hover:bg-[#E4E7EC]"
-                    aria-label="Remove pasted image"
-                    title="Remove pasted image"
+                    aria-label={t("chat.remove_image_aria")}
+                    title={t("chat.remove_image_aria")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3166,8 +3171,8 @@ const Chat = ({
                       )
                     }
                     className="rounded-full p-0.5 text-[#667085] transition-colors hover:bg-[#E4E7EC]"
-                    aria-label="Remove attached document"
-                    title="Remove attached document"
+                    aria-label={t("chat.remove_document_aria")}
+                    title={t("chat.remove_document_aria")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -3218,7 +3223,7 @@ const Chat = ({
                 onClick={() => fileInputRef.current?.click()}
                 disabled={!isTemplateV2Variant || chatInputDisabled}
                 className="inline-flex h-[28px] items-center rounded-[64px] disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Attach files"
+                aria-label={t("chat.attach_files_aria")}
                 title={
                   isTemplateV2Variant
                     ? "Attach files"
@@ -3320,7 +3325,7 @@ const Chat = ({
               onClick={() => inputRef.current?.focus()}
               disabled={chatInputDisabled}
               className="inline-flex h-[30px] items-center gap-1.5 rounded-[64px] border border-[#EDEEEF] bg-white px-3 text-[12px] font-medium text-[#4A4A4A] transition-colors hover:bg-[#FAFAFA] disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Focus prompt input"
+              aria-label={t("chat.focus_input_aria")}
             >
               <svg
                 width="13"
@@ -3347,7 +3352,7 @@ const Chat = ({
                 type="button"
                 onClick={stopStreaming}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-[34px] border border-[#E4E7EC] bg-white px-3 py-2 text-sm font-medium text-[#344054] transition-colors hover:bg-[#F9FAFB]"
-                aria-label="Stop chat response"
+                aria-label={t("chat.stop_response_aria")}
               >
                 <Loader2
                   className="h-3 w-3 animate-spin text-[#667085]"
@@ -3372,7 +3377,7 @@ const Chat = ({
                   background:
                     "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)",
                 }}
-                aria-label="Send prompt"
+                aria-label={t("chat.send_prompt_aria")}
               >
                 <ArrowUp className="h-4 w-4 text-[#191919]" />
               </button>

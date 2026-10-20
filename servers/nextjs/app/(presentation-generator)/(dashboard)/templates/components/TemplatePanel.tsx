@@ -5,6 +5,7 @@ import { ChevronRight, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
 import CreateCustomTemplate from "./CreateCustomTemplate";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { ensureTailwindBrowserScript } from "@/lib/tailwind-browser";
 import { useTemplateSummaries, TemplateTab } from "../../../hooks/useTemplateSummaries";
@@ -21,6 +22,7 @@ import {
 } from "./TemplateLibraryUi";
 
 const LayoutPreview = () => {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TemplateTab>("default");
   const router = useRouter();
   const {
@@ -117,26 +119,26 @@ const LayoutPreview = () => {
               href="/custom-template"
               onClick={() => trackEvent(MixpanelEvent.Templates_New_Template_Clicked)}
               className="inline-flex items-center font-syne font-semibold gap-2 rounded-xl px-4 py-2.5 text-black text-sm shadow-sm hover:shadow-md"
-              aria-label="Create new template"
+              aria-label={t("templates.create_new_template_aria")}
               style={{
                 borderRadius: "48px",
                 background:
                   "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 27.88%, #F4DCD3 69.23%, #FDE4C2 100%)",
               }}
             >
-              <span className="hidden md:inline">New Template</span>
-              <span className="md:hidden">New</span>
+              <span className="hidden md:inline">{t("templates.new_template_label")}</span>
+              <span className="md:hidden">{t("templates.new_label_short")}</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </div>
 
-      <section aria-label="Template library" className="mx-auto flex min-w-0 flex-col gap-5 px-4 pb-8 pt-[19px] sm:pl-6 sm:pr-2">
+      <section aria-label={t("templates.template_library_aria")} className="mx-auto flex min-w-0 flex-col gap-5 px-4 pb-8 pt-[19px] sm:pl-6 sm:pr-2">
         <p className="flex min-h-[26px] flex-wrap items-center gap-1.5 text-base font-medium text-[#191919]">
-          <span>Choose a template or</span>
+          <span>{t("templates.choose_template_or")}</span>
           <Link href="/custom-template" onClick={() => trackEvent(MixpanelEvent.Templates_New_Template_Clicked)} className="inline-flex items-center gap-1.5 rounded outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[#7A5AF8]/30">
-            <CirclePlus aria-hidden="true" className="h-4 w-4 text-[#7A5AF8]" strokeWidth={1.67} />create your own.
+            <CirclePlus aria-hidden="true" className="h-4 w-4 text-[#7A5AF8]" strokeWidth={1.67} />{t("templates.create_your_own")}
           </Link>
         </p>
         <TemplateLibraryControls tab={tab} onTabChange={handleTabChange} query={query} onQueryChange={setQuery} sort={sort} onSortChange={setSort} />

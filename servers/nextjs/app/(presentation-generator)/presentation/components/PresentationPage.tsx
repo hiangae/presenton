@@ -18,6 +18,7 @@ import SidePanel from "./SidePanel";
 import SlideContent from "./SlideContent";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import {
   AlertCircle,
@@ -142,6 +143,7 @@ const NAVIGATION_SCROLL_WINDOW_MS = 800;
 const PresentationPage: React.FC<PresentationPageProps> = ({
   presentation_id,
 }) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
@@ -808,9 +810,9 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
           role="alert"
         >
           <AlertCircle className="w-16 h-16 mb-4 text-red-500" />
-          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+          <h2 className="text-xl font-semibold mb-2">{t("presentation.error_title")}</h2>
           <p className="text-center mb-4">
-            We couldn't load your presentation. Please try again.
+            {t("presentation.error_desc")}
           </p>
           <div className="flex gap-2 justify-center items-center">
             <Button
@@ -886,10 +888,10 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
                   className="h-4 w-4 text-[#6847F4]"
                   aria-hidden="true"
                 />
-                <span>Navigate with</span>
+                <span>{t("presentation.navigate_with")}</span>
                 <span
                   className="flex items-center gap-1"
-                  aria-label="arrow keys"
+                  aria-label={t("presentation.arrow_keys_aria")}
                 >
                   {NAVIGATION_HINT_KEYS.map((key) => (
                     <kbd
@@ -900,10 +902,10 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
                     </kbd>
                   ))}
                 </span>
-                <span>or the left thumbnails</span>
+                <span>{t("presentation.or_thumbnails")}</span>
                 <button
                   type="button"
-                  aria-label="Dismiss navigation hint"
+                  aria-label={t("presentation.dismiss_hint_aria")}
                   onClick={dismissNavigationHint}
                   className="pointer-events-auto ml-1 flex h-7 w-7 items-center justify-center rounded-full text-[#667085] transition hover:bg-[#F0F1F4] hover:text-[#101323] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8]"
                 >
@@ -972,7 +974,7 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
 
           <button
             type="button"
-            aria-label="Close AI Assistant"
+            aria-label={t("presentation.close_assistant_aria")}
             onClick={closeMobileAssistant}
             className={cn(
               "inset-0 z-[60] bg-black/35 xl:hidden",
@@ -996,7 +998,7 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
             {isRightPanelOpen ? (
               <button
                 type="button"
-                aria-label="Close tools panel"
+                aria-label={t("presentation.close_tools_aria")}
                 onClick={() => setIsRightPanelOpen(false)}
                 className="absolute -left-[10px] top-1/2 z-[80] hidden h-[36px] w-[16px] -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#E8E5FF] bg-[#FEFEFF] text-[#6938EF] shadow-[0_10px_26px_rgba(52,48,96,0.10)] transition-[border-color,box-shadow,color] hover:border-[#D9D6FE] hover:text-[#5925DC] hover:shadow-[0_12px_30px_rgba(52,48,96,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8] focus-visible:ring-offset-2 xl:flex"
               >
@@ -1015,7 +1017,7 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
               <button
                 ref={mobileAssistantCloseRef}
                 type="button"
-                aria-label="Close AI Assistant"
+                aria-label={t("presentation.close_assistant_aria")}
                 onClick={closeMobileAssistant}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-[#667085] transition hover:bg-[#F6F6F9] hover:text-[#101323] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8]"
               >

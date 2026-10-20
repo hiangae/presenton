@@ -28,6 +28,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 import { notify } from "@/components/ui/sonner";
 import {
   IMAGE_PROVIDERS,
@@ -50,6 +51,7 @@ export default function CommunityDesignPreviewDialog({
   onOpenChange,
   onUseDesign,
 }: CommunityDesignPreviewDialogProps) {
+  const { t } = useTranslation();
   const [referenceView, setReferenceView] = useState<{
     sourceCommunityId: number;
     referenceId: number;
@@ -248,7 +250,7 @@ export default function CommunityDesignPreviewDialog({
 
                 <aside className="shrink-0 overflow-visible border-t border-[#EDEEEF] bg-white p-4 font-syne sm:flex sm:min-h-0 sm:flex-col sm:overflow-hidden sm:border-l sm:border-t-0 sm:p-5">
                   <section className="shrink-0">
-                    <h3 className="text-base font-medium text-black">AI Setup</h3>
+                    <h3 className="text-base font-medium text-black">{t("community.ai_setup")}</h3>
 
                     <div className="mt-2.5 flex h-[22px] items-center">
                       {setupProviders.map((provider, index) => (
@@ -329,9 +331,9 @@ export default function CommunityDesignPreviewDialog({
                   <section className="sm:flex sm:min-h-0 sm:flex-1 sm:flex-col">
                     <div className="flex items-start gap-1.5">
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-medium text-black">Prompt</h3>
+                        <h3 className="text-base font-medium text-black">{t("community.prompt")}</h3>
                         <p className="mt-1 font-manrope text-xs font-normal text-[#4C4C4C]">
-                          Paste into the prompt field.
+                          {t("community.paste_into_prompt")}
                         </p>
                       </div>
                       <button
@@ -339,7 +341,7 @@ export default function CommunityDesignPreviewDialog({
                         onClick={() => void copyPrompt()}
                         disabled={!displayedPresentation?.prompt?.trim()}
                         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#191919] transition hover:bg-[#F6F6F9] disabled:cursor-not-allowed disabled:opacity-40"
-                        aria-label="Copy example prompt"
+                        aria-label={t("community.copy_prompt_aria")}
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </button>
@@ -354,9 +356,9 @@ export default function CommunityDesignPreviewDialog({
 
                   <div className="mt-4 shrink-0 sm:mt-7">
                     <section className="min-w-0">
-                      <h3 className="text-base font-medium text-black">Creator</h3>
+                      <h3 className="text-base font-medium text-black">{t("community.creator")}</h3>
                       <p className="mt-1 break-all text-xs font-normal leading-4 text-[#4C4C4C]">
-                        by {author}
+                        {t("community.by_author", { author })}
                       </p>
                     </section>
 
@@ -390,7 +392,7 @@ export default function CommunityDesignPreviewDialog({
                 className="h-5 w-5 min-[1100px]:h-6 min-[1100px]:w-6"
                 strokeWidth={1.5}
               />
-              <span className="sr-only">Close preview</span>
+              <span className="sr-only">{t("community.close_preview_aria")}</span>
             </DialogClose>
           </>
         )}

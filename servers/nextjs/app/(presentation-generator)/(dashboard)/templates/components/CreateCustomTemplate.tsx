@@ -3,6 +3,7 @@
 
 import { Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -17,6 +18,7 @@ const CreateCustomTemplate = ({
   libraryPage?: boolean;
   onClick?: () => void;
 }) => {
+    const { t } = useTranslation();
     const router = useRouter();
 
     const handleOpenTemplateBuilder = () => {
@@ -32,7 +34,7 @@ const CreateCustomTemplate = ({
             <TemplateLibraryPattern />
             <span className="relative flex flex-col items-center gap-2.5 p-2.5">
               <span className="flex items-center justify-center rounded-full bg-[#7A5AF8] p-1"><Plus aria-hidden="true" className="h-3.5 w-3.5 text-white" /></span>
-              <span className="font-manrope text-sm font-semibold leading-[19px] tracking-[0.14px] text-[#191919]">Create New Template</span>
+              <span className="font-manrope text-sm font-semibold leading-[19px] tracking-[0.14px] text-[#191919]">{t("templates.create_new_template")}</span>
             </span>
           </button>
         </Card>

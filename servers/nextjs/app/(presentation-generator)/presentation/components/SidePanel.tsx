@@ -27,6 +27,7 @@ import { SortableSlide } from "./SortableSlide";
 import { notify } from "@/components/ui/sonner";
 import { usePathname } from "next/navigation";
 import NewSlide from "./NewSlide";
+import { useTranslation } from "react-i18next";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { SlideThumbnailCard } from "./SlideThumbnailCard";
 import {
@@ -58,6 +59,7 @@ const SidePanel = ({
 
   loading,
 }: SidePanelProps) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [showNewSlideSelection, setShowNewSlideSelection] = useState(false);
   const thumbnailScrollRef = useRef<HTMLDivElement | null>(null);
@@ -238,7 +240,7 @@ const SidePanel = ({
   return (
     <aside
       className="relative h-full w-[165px] bg-white px-4 py-5"
-      aria-label="Presentation slides"
+      aria-label={t("editor.slides_aria")}
     >
       <div
         className={`

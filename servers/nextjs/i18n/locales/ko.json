@@ -167,7 +167,15 @@
     "no_layouts_available": "사용 가능한 레이아웃이 없습니다.",
     "could_not_add_slide": "슬라이드를 추가하지 못했습니다",
     "add_slide_error": "새 슬라이드 추가 중 문제가 발생했습니다.",
-    "slide_actions": "슬라이드 작업"
+    "slide_actions": "슬라이드 작업",
+    "error_title": "문제가 발생했습니다",
+    "error_desc": "프레젠테이션을 불러오지 못했습니다. 다시 시도해 주세요.",
+    "navigate_with": "다음으로 이동",
+    "arrow_keys_aria": "화살키",
+    "or_thumbnails": "또는 왼쪽 썸네일",
+    "dismiss_hint_aria": "내비게이션 힌트 닫기",
+    "close_assistant_aria": "AI 어시스턴트 닫기",
+    "close_tools_aria": "도구 패널 닫기"
   },
   "editor": {
     "blocks_panel_title": "블록",
@@ -198,6 +206,60 @@
     "group_table_type": "표 유형",
     "layouts_count": "{{count}}개 레이아웃",
     "create_block_aria": "블록 생성",
-    "add_item_aria": "{{label}} 추가"
+    "add_item_aria": "{{label}} 추가",
+    "slides_aria": "프레젠테이션 슬라이드"
+  },
+  "chat": {
+    "saved_chats_aria": "저장된 채팅 열기",
+    "saved_chats_title": "저장된 채팅",
+    "new_chat_aria": "새 채팅 시작",
+    "understanding": "이해 중",
+    "thinking": "생각 중",
+    "remove_link_aria": "링크 제거",
+    "remove_image_aria": "붙여넣은 이미지 제거",
+    "remove_document_aria": "첨부 문서 제거",
+    "attach_files_aria": "파일 첨부",
+    "quick_prompts_aria": "빠른 프롬프트 열기",
+    "stop_response_aria": "채팅 응답 중지",
+    "send_prompt_aria": "프롬프트 전송",
+    "focus_input_aria": "프롬프트 입력창 포커스",
+    "conversation_options_title": "대화 옵션",
+    "assistant_label": "어시스턴트",
+    "working_aria": "작업 중",
+    "select_edits": "편집 선택",
+    "changes_one": "변경 사항",
+    "changes_other": "변경 사항",
+    "original_label": "원본",
+    "modified_label": "수정됨",
+    "new_chat_label": "새 대화"
+  },
+  "templates": {
+    "search_templates_aria": "템플릿 검색",
+    "search_templates_placeholder": "제목 또는 키워드로 검색",
+    "sort_templates_aria": "템플릿 정렬",
+    "open_template": "템플릿 열기",
+    "create_new_template": "새 템플릿 만들기",
+    "create_new_template_aria": "새 템플릿 만들기",
+    "new_template_label": "새 템플릿",
+    "new_label_short": "새로",
+    "template_library_aria": "템플릿 라이브러리",
+    "choose_template_or": "템플릿을 선택하거나",
+    "create_your_own": "직접 만들어 보세요.",
+    "sort_name_asc": "가나다순",
+    "sort_name_desc": "역순",
+    "sort_newest": "최신순",
+    "sort_oldest": "오래된 순서",
+    "open_template_aria": "{{name}} 템플릿 열기"
+  },
+  "community": {
+    "ai_setup": "AI 설정",
+    "prompt": "프롬프트",
+    "paste_into_prompt": "프롬프트 필드에 붙여넣으세요.",
+    "copy_prompt_aria": "예시 프롬프트 복사",
+    "creator": "제작자",
+    "by_author": "{{author}} 제작",
+    "close_preview_aria": "미리보기 닫기",
+    "search_community_aria": "커뮤니티 프레젠테이션 검색",
+    "search_placeholder": "검색..."
   }
 }

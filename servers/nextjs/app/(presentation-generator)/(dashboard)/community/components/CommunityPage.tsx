@@ -31,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 import { notify } from "@/components/ui/sonner";
 import { sanitizeAnalyticsError } from "@/utils/analytics";
 import { MixpanelEvent, trackEvent } from "@/utils/mixpanel";
@@ -56,6 +57,7 @@ const getFilterAnalyticsProps = (
 };
 
 export default function CommunityPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -267,12 +269,12 @@ export default function CommunityPage() {
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end lg:w-auto">
             <label className="flex h-10 w-full items-center gap-2.5 rounded-full border border-[#DBDBDB99] bg-white px-2.5 sm:w-[234px]">
               <Search className="h-4 w-4 shrink-0 text-[#808080]" strokeWidth={1.75} />
-              <span className="sr-only">Search community presentations</span>
+              <span className="sr-only">{t("community.search_community_aria")}</span>
               <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search ..."
+                placeholder={t("community.search_placeholder")}
                 className="min-w-0 flex-1 bg-transparent font-syne text-base font-normal text-[#191919] outline-none placeholder:text-[#808080]"
               />
             </label>

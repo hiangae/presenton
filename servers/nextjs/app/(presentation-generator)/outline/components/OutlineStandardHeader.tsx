@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OutlineStandardHeaderProps {
   title: string;
@@ -12,13 +13,15 @@ interface OutlineStandardHeaderProps {
 const OutlineStandardHeader = ({
   title,
   onBack,
-}: OutlineStandardHeaderProps) => (
+}: OutlineStandardHeaderProps) => {
+  const { t } = useTranslation();
+  return (
   <header className="sticky top-0 z-[60] h-[68px] w-full border-b border-[#EDEEEF] bg-white font-syne">
     <div className="flex h-full items-center justify-between px-6">
       <div className="flex min-w-0 items-center gap-3">
         <Link
           href="/dashboard"
-          aria-label="Go to dashboard"
+          aria-label={t("outline.go_to_dashboard")}
           className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8]/30"
         >
           <Image
@@ -40,10 +43,11 @@ const OutlineStandardHeader = ({
         className="flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.96px] text-[#333333] transition-colors hover:text-[#7A5AF8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7A5AF8]/30"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Back
+        {t("outline.back")}
       </button>
     </div>
   </header>
-);
+  );
+};
 
 export default OutlineStandardHeader;

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import { getApiUrl } from "@/utils/api";
 import { isAuthDisabled } from "@/utils/auth";
@@ -28,6 +29,7 @@ const initialStatus: AuthStatus = {
 };
 
 export default function AuthGate() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<AuthStatus>(initialStatus);
   const [isLoading, setIsLoading] = useState(true);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -37,9 +39,7 @@ export default function AuthGate() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [oidcLoginEnabled, setOidcLoginEnabled] = useState(false);
-  const [oidcLoginLabel, setOidcLoginLabel] = useState(
-    "Sign in with your identity provider"
-  );
+  const [oidcLoginLabel, setOidcLoginLabel] = useState<string | null>(null);
   const isSetupMode = useMemo(() => !status.configured, [status.configured]);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function AuthGate() {
         trackEvent(MixpanelEvent.Auth_Unauthorized_Redirect, {
           configured: true,
         });
-        notify.error("Unauthorized", "Sign in to view this page.", {
+        notify.error(t("auth.err_unauthorized_title"), t("auth.err_unauthorized_msg"), {
           id: "auth-unauthorized-redirect",
           duration: 5000,
         });
@@ -143,8 +143,8 @@ export default function AuthGate() {
         ),
       });
       notify.error(
-        "Could not load login",
-        "We could not connect to the login service. Please refresh and try again."
+        t("auth.err_load_title"),
+        t("auth.err_load_msg")
       );
     } finally {
       setIsLoading(false);
@@ -205,8 +205,8 @@ export default function AuthGate() {
         reason: "username_too_short",
       });
       notify.warning(
-        "Username too short",
-        "Your username must be at least 3 characters."
+        t("auth.err_username_short_title"),
+        t("auth.err_username_short_msg")
       );
       return;
     }
@@ -218,8 +218,8 @@ export default function AuthGate() {
         reason: "password_too_short",
       });
       notify.warning(
-        "Password too short",
-        `Your password must be at least ${minimumPasswordLength} characters.`
+        t("auth.err_password_short_title"),
+        t("auth.err_password_short_msg", { min: minimumPasswordLength })
       );
       return;
     }
@@ -230,8 +230,8 @@ export default function AuthGate() {
         reason: "passwords_do_not_match",
       });
       notify.warning(
-        "Passwords do not match",
-        "Make sure both password fields match before continuing."
+        t("auth.err_password_mismatch_title"),
+        t("auth.err_password_mismatch_msg")
       );
       return;
     }
@@ -279,15 +279,15 @@ export default function AuthGate() {
         );
         if (response.status === 401) {
           notify.error(
-            "Sign-in failed",
+            t("auth.err_signin_failed_title"),
             detail === UNAUTHORIZED_DETAIL
-              ? "The username or password is incorrect. Please try again."
+              ? t("auth.err_bad_credentials_msg")
               : detail
           );
         } else {
           notify.error(
-            isSetupMode ? "Could not create account" : "Sign-in failed",
-            detail || "Something went wrong. Please try again."
+            isSetupMode ? t("auth.err_create_failed_title") : t("auth.err_signin_failed_title"),
+            detail || t("auth.err_generic_msg")
           );
         }
         return;
@@ -305,7 +305,7 @@ export default function AuthGate() {
         });
         setPassword("");
         setConfirmPassword("");
-        notify.success("Account created", "Sign in with your new username and password to continue.", {
+        notify.success(t("auth.success_account_created_title"), t("auth.success_account_created_msg"), {
           duration: 6000,
         });
         return;
@@ -324,8 +324,8 @@ export default function AuthGate() {
       setPassword("");
       setConfirmPassword("");
       notify.success(
-        "Signed in",
-        "Welcome back. Loading your workspace."
+        t("auth.success_signed_in_title"),
+        t("auth.success_signed_in_msg")
       );
     } catch (submitError) {
       console.error(submitError);
@@ -342,8 +342,8 @@ export default function AuthGate() {
         }
       );
       notify.error(
-        "Login unavailable",
-        "The login service is unavailable right now. Please try again in a moment."
+        t("auth.err_login_unavailable_title"),
+        t("auth.err_login_unavailable_msg")
       );
     } finally {
       setIsSubmitting(false);
@@ -356,7 +356,7 @@ export default function AuthGate() {
     status.authenticated ||
     !hasMetSplashDuration
   ) {
-    return <PresentonSplashLoader message="Preparing your workspace..." />;
+    return <PresentonSplashLoader message={t("auth.splash_message")} />;
   }
 
   return (
@@ -375,10 +375,10 @@ export default function AuthGate() {
             </div>
             <div>
               <p className="font-syne text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7A5AF8]">
-                Secure instance
+                {t("auth.secure_instance")}
               </p>
               <h1 className="mt-1 font-syne text-xl font-normal leading-tight tracking-[-0.03em] text-black sm:text-[22px]">
-                {isSetupMode ? "Create your admin login" : "Sign in to continue"}
+                {isSetupMode ? t("auth.create_admin_login") : t("auth.sign_in_to_continue")}
               </h1>
             </div>
           </div>
@@ -386,14 +386,14 @@ export default function AuthGate() {
 
         <p className="max-w-md text-sm leading-relaxed text-[#6B7280]">
           {isSetupMode
-            ? "One-time setup for this deployment. You will use the same username and password on future visits."
-            : "This deployment is protected. Enter your credentials to open the app."}
+            ? t("auth.setup_desc")
+            : t("auth.protected_desc")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
           <div className="space-y-2">
             <label htmlFor="username" className="block text-sm font-medium text-[#374151]">
-              Username
+              {t("auth.username")}
             </label>
             <input
               id="username"
@@ -402,11 +402,11 @@ export default function AuthGate() {
               onChange={(event) =>
                 setUsername(event.target.value.replace(/\s/g, ""))
               }
-              placeholder="Username"
+              placeholder={t("auth.username_placeholder")}
               minLength={3}
               maxLength={128}
               pattern="\S+"
-              title="Username cannot contain spaces"
+              title={t("auth.username_placeholder")}
               required
               spellCheck={false}
               className="h-12 w-full rounded-lg border border-[#E1E1E5] bg-white px-4 text-sm text-[#191919] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#7A5AF8] focus:ring-2 focus:ring-[#7A5AF8]/15"
@@ -416,7 +416,7 @@ export default function AuthGate() {
 
           <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-medium text-[#374151]">
-              Password
+              {t("auth.password")}
             </label>
             <input
               id="password"
@@ -425,7 +425,7 @@ export default function AuthGate() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={
-                isSetupMode ? "At least 8 characters" : "Enter your password"
+                isSetupMode ? t("auth.password_placeholder_setup") : t("auth.password_placeholder_signin")
               }
               minLength={isSetupMode ? 8 : 6}
               maxLength={128}
@@ -438,7 +438,7 @@ export default function AuthGate() {
           {isSetupMode ? (
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#374151]">
-                Confirm password
+                {t("auth.confirm_password")}
               </label>
               <input
                 id="confirmPassword"
@@ -446,7 +446,7 @@ export default function AuthGate() {
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                placeholder="Re-enter your password"
+                placeholder={t("auth.confirm_password_placeholder")}
                 minLength={8}
                 maxLength={128}
                 required
@@ -458,7 +458,7 @@ export default function AuthGate() {
 
           {!isSetupMode && status.configured ? (
             <p className="rounded-lg border border-[#EDEEEF] bg-white px-4 py-3 text-xs leading-relaxed text-[#6B7280]">
-              Use the username and password provided by your administrator.
+              {t("auth.admin_hint")}
             </p>
           ) : null}
 
@@ -469,11 +469,11 @@ export default function AuthGate() {
           >
             {isSubmitting
               ? isSetupMode
-                ? "Saving credentials…"
-                : "Signing in…"
+                ? t("auth.btn_saving")
+                : t("auth.btn_signing_in")
               : isSetupMode
-                ? "Create account"
-                : "Sign in"}
+                ? t("auth.btn_create_account")
+                : t("auth.btn_sign_in")}
           </button>
         </form>
 
@@ -482,7 +482,7 @@ export default function AuthGate() {
             <div className="flex items-center gap-3">
               <span className="h-px flex-1 bg-[#EDEEEF]" />
               <span className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
-                or
+                {t("common.or")}
               </span>
               <span className="h-px flex-1 bg-[#EDEEEF]" />
             </div>
@@ -493,7 +493,7 @@ export default function AuthGate() {
               }}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-[58px] border border-[#E1E1E5] bg-white px-5 py-3 font-syne text-xs font-semibold text-[#374151] transition hover:border-[#7A5AF8] hover:text-[#7A5AF8]"
             >
-              {oidcLoginLabel}
+              {oidcLoginLabel ?? t("auth.oidc_default_label")}
             </a>
           </div>
         ) : null}

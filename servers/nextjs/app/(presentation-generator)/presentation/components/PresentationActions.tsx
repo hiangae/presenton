@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlignCenter,
   AreaChart,
@@ -426,7 +427,9 @@ const PaletteCard = ({
   onClick?: () => void;
   previewKind: InsertPalettePreviewKind;
   theme: TemplateTheme;
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <button
     type="button"
     disabled={disabled}
@@ -436,7 +439,7 @@ const PaletteCard = ({
       disabled &&
         "cursor-not-allowed opacity-50 hover:translate-y-0 hover:border-[#EDEEF0] hover:shadow-sm",
     )}
-    aria-label={`Add ${item.label}`}
+    aria-label={t("editor.add_item_aria", { label: item.label })}
     title={item.label}
   >
     <div className="aspect-video w-full overflow-hidden bg-white">
@@ -446,7 +449,8 @@ const PaletteCard = ({
       {item.label}
     </span>
   </button>
-);
+  );
+};
 
 const PaletteGrid = ({
   disabled = false,
@@ -924,6 +928,7 @@ function BlockGroupCard({
   group: TemplateBlockGroup;
   onInsertBlock: (block: TemplateBlock) => void;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [hasExpanded, setHasExpanded] = useState(false);
   const firstVariant = group.variants[0];
@@ -981,7 +986,7 @@ function BlockGroupCard({
           onClick={toggleExpanded}
         >
           <span className="shrink-0 rounded-full border border-[#D6BBFB] bg-[#FAF8FF] px-3 py-1.5 text-[11px] font-medium leading-4 text-[#7F00FF]">
-            {variantCount} Layouts
+            {t("editor.layouts_count", { count: variantCount })}
           </span>
           <ChevronDown
             className={cn(
@@ -1008,6 +1013,7 @@ export const BlocksPanel = ({
   presentationData?: unknown;
   onInsertBlock: (block: TemplateBlock) => void;
 }) => {
+  const { t } = useTranslation();
   const [blockPrompt, setBlockPrompt] = useState("");
   const [{ blocks, error, loading }, dispatchBlockState] = useReducer(
     blocksPanelReducer,
@@ -1063,7 +1069,7 @@ export const BlocksPanel = ({
         if (cancelled) return;
         dispatchBlockState({
           type: "failed",
-          message: "Could not load template components.",
+          message: t("editor.could_not_load_template_components"),
         });
         trackEvent(MixpanelEvent.Editor_Template_Blocks_Load_Failed, {
           presentation_id: presentationId,
@@ -1096,14 +1102,14 @@ export const BlocksPanel = ({
         }
       `}</style>
       <h3 className="mb-3 text-[clamp(13px,0.95vw,15px)] font-semibold leading-5 text-[#101323]">
-        Blocks
+        {t("editor.blocks_panel_title")}
       </h3>
 
       <div className="mb-7 flex h-[clamp(46px,3.6vw,52px)] items-center rounded-[10px] border border-[#EDEEF0] bg-white pl-[clamp(10px,0.9vw,12px)] pr-[clamp(6px,0.6vw,8px)] shadow-[0_10px_26px_rgba(17,24,39,0.08)]">
         <input
           value={blockPrompt}
           onChange={(event) => setBlockPrompt(event.target.value)}
-          placeholder="Search blocks"
+          placeholder={t("editor.search_blocks")}
           className="min-w-0 flex-1 bg-transparent text-[clamp(10px,0.75vw,12px)] text-[#101323] outline-none placeholder:text-[#9CA3AF]"
         />
         <button
@@ -1114,7 +1120,7 @@ export const BlocksPanel = ({
             background:
               "linear-gradient(270deg, #D5CAFC 2.4%, #E3D2EB 35%, #FDE4C2 100%)",
           }}
-          aria-label="Create block"
+          aria-label={t("editor.create_block_aria")}
         >
           <Search
             className="h-[clamp(12px,0.9vw,14px)] w-[clamp(12px,0.9vw,14px)] text-[#101323]"
@@ -1123,12 +1129,12 @@ export const BlocksPanel = ({
         </button>
       </div>
 
-      <SectionLabel>Content</SectionLabel>
+      <SectionLabel>{t("editor.content_section")}</SectionLabel>
 
       <div className="space-y-3">
         {loading && (
           <p className="rounded-[8px] border border-[#E5E7EB] bg-[#F9FAFB] p-4 text-[11px] leading-4 text-[#667085]">
-            Loading template components...
+            {t("editor.loading_template_components")}
           </p>
         )}
         {!loading && error && (
@@ -1138,7 +1144,7 @@ export const BlocksPanel = ({
         )}
         {!loading && !error && visibleBlocks.length === 0 && (
           <p className="rounded-[8px] border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-4 text-[11px] leading-4 text-[#667085]">
-            No template components found.
+            {t("editor.no_template_components")}
           </p>
         )}
         {!loading &&
@@ -1216,9 +1222,10 @@ function ActionsSidebar({
   blocksUnavailable?: boolean;
   onActionSelect: (action: ActionId) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <aside
-      aria-label="Editor tools"
+      aria-label={t("editor.editor_tools_aria")}
       className="ml-auto flex h-full w-[90px] font-syne shrink-0 flex-col items-center gap-5 bg-white px-[10px] py-2"
     >
       <div
@@ -1230,7 +1237,7 @@ function ActionsSidebar({
         <PrimaryActionButton
           active={activeAction === "ai"}
           iconSrc={actionIconSrc.ai}
-          label="AI"
+          label={t("editor.action_ai")}
           onClick={() => onActionSelect("ai")}
         />
         {!aiOnly && (
@@ -1239,9 +1246,9 @@ function ActionsSidebar({
             <PrimaryActionButton
               active={activeAction === "blocks"}
               disabled={blocksUnavailable}
-              disabledReason="Blocks require a presentation template"
+              disabledReason={t("editor.blocks_require_template")}
               iconSrc={actionIconSrc.blocks}
-              label="Blocks"
+              label={t("editor.action_blocks")}
               onClick={() => onActionSelect("blocks")}
             />
           </>
@@ -1255,7 +1262,7 @@ function ActionsSidebar({
             {insertActions.map((item) => (
               <React.Fragment key={item.id}>
                 <NavButton
-                  item={item}
+                  item={{ ...item, label: t(`editor.action_${item.id}`) }}
                   active={activeAction === item.id}
                   onClick={() => onActionSelect(item.id)}
                 />
@@ -1308,6 +1315,7 @@ function ActionsPanel({
   presentationId: string;
   templateTheme: TemplateTheme;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="min-w-0 flex-1 bg-white">
       <div className={cn("h-full", activeAction === "ai" ? "block" : "hidden")}>
@@ -1329,8 +1337,8 @@ function ActionsPanel({
       {!aiOnly && activeAction === "texts" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Texts"
-          groups={[{ label: "Add", items: textItems }]}
+          title={t("editor.action_texts")}
+          groups={[{ label: t("editor.group_add"), items: textItems }]}
           onItemSelect={onTextItemSelect}
           previewKind="text"
           theme={templateTheme}
@@ -1339,8 +1347,8 @@ function ActionsPanel({
       {!aiOnly && activeAction === "charts" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Charts"
-          groups={[{ label: "Chart Type", items: chartTypeItems }]}
+          title={t("editor.action_charts")}
+          groups={[{ label: t("editor.group_chart_type"), items: chartTypeItems }]}
           onItemSelect={onChartItemSelect}
           previewKind="chart"
           theme={templateTheme}
@@ -1349,8 +1357,8 @@ function ActionsPanel({
       {!aiOnly && activeAction === "infographics" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Infographics"
-          groups={[{ label: "Choose a layout", items: infographicItems }]}
+          title={t("editor.action_infographics")}
+          groups={[{ label: t("editor.group_choose_layout"), items: infographicItems }]}
           onItemSelect={onInfographicItemSelect}
           previewKind="infographic"
           theme={templateTheme}
@@ -1359,8 +1367,8 @@ function ActionsPanel({
       {!aiOnly && activeAction === "tables" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Tables"
-          groups={[{ label: "Table Type", items: tableTypeItems }]}
+          title={t("editor.action_tables")}
+          groups={[{ label: t("editor.group_table_type"), items: tableTypeItems }]}
           onItemSelect={onTableItemSelect}
           previewKind="table"
           theme={templateTheme}
@@ -1369,8 +1377,8 @@ function ActionsPanel({
       {!aiOnly && activeAction === "images" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Images"
-          groups={[{ label: "Add", items: imageItems }]}
+          title={t("editor.action_images")}
+          groups={[{ label: t("editor.group_add"), items: imageItems }]}
           onItemSelect={onImageItemSelect}
           previewKind="image"
           theme={templateTheme}
@@ -1379,7 +1387,7 @@ function ActionsPanel({
       {!aiOnly && activeAction === "elements" && (
         <InsertPanel
           disabled={editingDisabled}
-          title="Elements"
+          title={t("editor.action_elements")}
           groups={elementItemGroups}
           onItemSelect={onElementItemSelect}
           previewKind="element"
@@ -1413,6 +1421,7 @@ function templateV2TargetKey(
 }
 
 const PresentationActions = (props: PresentationActionsProps) => {
+  const { t } = useTranslation();
   const {
     editingDisabled = false,
     presentationData,
@@ -1507,7 +1516,7 @@ const PresentationActions = (props: PresentationActionsProps) => {
     if (editingDisabled) return false;
     if (typeof window === "undefined") return false;
     if (typeof props.currentSlide !== "number") {
-      notify.warning("Select a slide", "Choose a slide before adding content.");
+      notify.warning(t("editor.select_a_slide"), t("editor.choose_slide_first"));
       return false;
     }
     if (
@@ -1529,8 +1538,8 @@ const PresentationActions = (props: PresentationActionsProps) => {
 
     if (!detail.handled) {
       notify.warning(
-        "Insert unavailable",
-        "Content can be added only to slides imported through the slide editor.",
+        t("editor.insert_unavailable"),
+        t("editor.insert_unavailable_desc"),
       );
       return false;
     }
@@ -1672,8 +1681,8 @@ const PresentationActions = (props: PresentationActionsProps) => {
     const element = adaptTemplateV2ComponentToElement(block.raw, block.index);
     if (!element) {
       notify.warning(
-        "Component unavailable",
-        "This template component cannot be inserted yet.",
+        t("editor.component_unavailable"),
+        t("editor.component_unavailable_desc"),
       );
       return;
     }

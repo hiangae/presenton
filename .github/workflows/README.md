@@ -1,5 +1,15 @@
 # GitHub Actions workflows
 
+## CodeQL (`codeql.yml`)
+
+CodeQL scans Python, JavaScript/TypeScript, and GitHub Actions with the
+security-extended queries on pushes to `main` and the security fix branch,
+and on pull requests targeting `main`. Once present on the default branch,
+the workflow can also be started manually for a selected branch.
+
+Each language uploads its analysis to code scanning and retains a SARIF
+artifact for 14 days. The scan does not build or publish the application.
+
 ## Test All Applications (`test-all.yml`)
 
 The test workflow runs on pushes and pull requests to `main`, and can also be

@@ -546,7 +546,8 @@ def test_export_includes_optional_fastapi_param():
     asyncio.run(runner())
 
 
-def test_export_task_output_permissions_are_readable(tmp_path):
+def test_export_task_output_permissions_are_readable(tmp_path, monkeypatch):
+    monkeypatch.setenv("APP_DATA_DIRECTORY", str(tmp_path))
     export_dir = tmp_path / "exports"
     export_dir.mkdir(mode=0o700)
     output_path = export_dir / "deck.pptx"
@@ -556,8 +557,8 @@ def test_export_task_output_permissions_are_readable(tmp_path):
 
     EXPORT_TASK_SERVICE._ensure_output_readable(str(output_path))
 
-    assert stat.S_IMODE(export_dir.stat().st_mode) == 0o755
-    assert stat.S_IMODE(output_path.stat().st_mode) == 0o644
+    assert stat.S_IMODE(export_dir.stat().st_mode) == 0o750
+    assert stat.S_IMODE(output_path.stat().st_mode) == 0o640
 
 
 def test_replace_and_extension_helpers():

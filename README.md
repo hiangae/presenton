@@ -376,6 +376,7 @@ account setup available so an admin can finish configuration in Settings.
 | **PRESENTON_PUBLIC_URL** | Optional URL | Browser-reachable Presenton origin, such as `http://localhost:5001` or `https://slides.example.com`. Generated download, edit, and preview links use this origin. |
 | **PRESENTATION_GENERATION_MODE** | `both` (default), `standard`, `smart` | Controls the modes available in the UI and MCP server. A single-mode value hides the selector; `smart` also hides template features. See the **[presentation generation modes guide](docs/presentation-generation-modes.md)**. |
 | **PRESENTON_COMMUNITY_ENABLED** | `true` (default), `false` | Controls the cloud-backed Community gallery and design references. Set to `false` for air-gapped deployments to hide the feature and prevent community API requests. |
+| **PRESENTON_COMMUNITY_API_URL** | `https://api.presenton.ai/api/v3/community/presentations` (default) | Community API base URL. Requests use the catalog or a positive presentation ID and do not follow redirects; configure the service's final API URL. |
 | **LLM** | `openai`, `deepseek`, `google`, `vertex`, `azure`, `bedrock`, `openrouter`, `fireworks`, `together`, `cerebras`, `anthropic`, `litellm`, `lmstudio`, `ollama`, `custom`, `codex` | Selects the text LLM provider. |
 | **OPENAI_API_KEY** | Required for `LLM=openai` | OpenAI API key. |
 | **OPENAI_MODEL** | `gpt-4.1` (default) | OpenAI model. |
@@ -401,7 +402,7 @@ account setup available so an admin can finish configuration in Settings.
 | **BEDROCK_PROFILE_NAME** | Optional | AWS profile name. |
 | **OPENROUTER_API_KEY** | Required for `LLM=openrouter` | OpenRouter API key. |
 | **OPENROUTER_MODEL** | `openai/gpt-4o` (default) | OpenRouter model. |
-| **OPENROUTER_BASE_URL** | `https://openrouter.ai/api/v1` (default) | OpenRouter base URL. |
+| **OPENROUTER_BASE_URL** | `https://openrouter.ai/api/v1` (default) | OpenRouter base URL. Provider discovery accepts the default or this server-configured URL and does not follow redirects; configure the proxy's final API URL. |
 | **OPENROUTER_PROVIDER_ORDER** | Optional comma-separated list | Provider routing order. |
 | **OPENROUTER_ALLOW_FALLBACKS** | `true` / `false` | Optional provider fallback override. |
 | **OPENROUTER_REQUIRE_PARAMETERS** | `true` / `false` | Only route to providers supporting every request parameter. |
@@ -412,14 +413,14 @@ account setup available so an admin can finish configuration in Settings.
 | **FIREWORKS_BASE_URL** | `https://api.fireworks.ai/inference/v1` (default) | Fireworks base URL. |
 | **TOGETHER_API_KEY** | Required for `LLM=together` | Together AI API key. |
 | **TOGETHER_MODEL** | For example `openai/gpt-oss-20b` | Together AI model. |
-| **TOGETHER_BASE_URL** | `https://api.together.ai/v1` (default) | Together AI base URL. |
+| **TOGETHER_BASE_URL** | `https://api.together.ai/v1` (default) | Together AI base URL. Model discovery requires a final HTTP(S) API base URL without a query or fragment and does not follow redirects. |
 | **CEREBRAS_API_KEY** | Required for `LLM=cerebras` | Cerebras API key. |
 | **CEREBRAS_MODEL** | `llama-3.3-70b` (default) | Cerebras model. |
 | **CEREBRAS_BASE_URL** | `https://api.cerebras.ai/v1` (default) | Cerebras base URL. |
 | **ANTHROPIC_API_KEY** | Required for `LLM=anthropic` | Anthropic API key. |
 | **ANTHROPIC_MODEL** | `claude-3-5-sonnet-20241022` (default) | Anthropic model. |
 | **CODEX_MODEL** | Required for `LLM=codex` | Codex model. The OAuth flow maps host port `1455` for its callback. |
-| **CUSTOM_LLM_URL** | Required for `LLM=custom` | OpenAI-compatible base URL. The server must implement `POST /v1/chat/completions`; a provider-specific completion endpoint is insufficient. |
+| **CUSTOM_LLM_URL** | Required for `LLM=custom` | OpenAI-compatible base URL. The server must implement `POST /v1/chat/completions`; a provider-specific completion endpoint is insufficient. Model discovery supports local servers and proxy prefixes, requires a URL without a query or fragment, and does not follow redirects. |
 | **CUSTOM_LLM_API_KEY** | Provider-dependent | Custom-provider API key. |
 | **CUSTOM_MODEL** | Required for `LLM=custom` | Custom-provider model ID. |
 | **LITELLM_BASE_URL** | Required for `LLM=litellm` | LiteLLM proxy or gateway base URL. |
@@ -452,7 +453,7 @@ Use when **LLM** is **ollama**:
 
 | Variable | Values / default | Purpose |
 | --- | --- | --- |
-| **OLLAMA_URL** | For example `http://host.docker.internal:11434` from Docker | Ollama HTTP API base URL. |
+| **OLLAMA_URL** | For example `http://host.docker.internal:11434` from Docker | Ollama HTTP API base URL. Local servers and proxy path prefixes are supported. Model discovery and downloads reject query/fragment URLs and redirects; configure the final API base URL. |
 | **OLLAMA_MODEL** | For example `llama3.2:3b` | Ollama model name. |
 | **START_OLLAMA** | `false` (default), `true` | Allows the container entrypoint (`start.js`) to install Ollama and run `ollama serve`. |
 

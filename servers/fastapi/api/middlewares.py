@@ -112,10 +112,12 @@ class SessionAuthMiddleware(BaseHTTPMiddleware):
                     path.startswith("/api/v1/ppt/fonts/")
                     and request.method in {"POST", "DELETE"}
                 )
-                or (
-                    path == "/api/v1/ppt/ollama/models/pull"
-                    and request.method == "POST"
-                )
+                or path in {
+                    "/api/v1/ppt/ollama/models/pull",
+                    "/api/v1/ppt/ollama/models/available",
+                    "/api/v1/ppt/openai/models/available",
+                    "/api/v1/ppt/openrouter/providers/available",
+                }
             )
             # Browser sessions and verified OIDC tokens both carry a trusted
             # principal; API keys are rejected from admin-only routes.

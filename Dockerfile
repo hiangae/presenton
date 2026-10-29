@@ -24,9 +24,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --python /opt/venv/bin/python \
     "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
 ENV HF_HOME=/root/.cache/huggingface \
+    FASTEMBED_CACHE_PATH=/root/.cache/presenton/fastembed \
     PRESENTON_FASTEMBED_ICON_CACHE_DIR=/root/.cache/presenton/fastembed-icons
 # Warm FastEmbed caches into the image (not a BuildKit cache mount, or HF weights would be missing).
 RUN /opt/venv/bin/python scripts/warm_fastembed_cache.py
+RUN --network=none HF_HUB_OFFLINE=1 /opt/venv/bin/python scripts/warm_fastembed_cache.py
 
 
 FROM node:22-bookworm-slim AS nextjs-builder
@@ -52,16 +54,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY package.json /app/
+COPY package.json package-lock.json /app/
 
 RUN mkdir -p /app/document-extraction-liteparse \
-    && cd /app/document-extraction-liteparse \
-    && npm init -y \
-    && npm install @llamaindex/liteparse@1.5.2 --omit=dev
+    && cp /app/package.json /app/package-lock.json /app/document-extraction-liteparse/ \
+    && npm --prefix /app/document-extraction-liteparse ci --omit=dev
 
 COPY electron/resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
 COPY scripts/sync-presentation-export.cjs /app/scripts/sync-presentation-export.cjs
 COPY scripts/run-presentation-export.mjs /app/scripts/run-presentation-export.mjs
+COPY scripts/export-permissions.cjs /app/scripts/export-permissions.cjs
 RUN rm -rf /app/presentation-export \
     && node /app/scripts/sync-presentation-export.cjs --force
 
@@ -80,6 +82,7 @@ ENV APP_DATA_DIRECTORY=/app_data \
     EXPORT_PACKAGE_ROOT=/app/presentation-export \
     PRESENTON_APP_ROOT=/app \
     HF_HOME=/root/.cache/huggingface \
+    FASTEMBED_CACHE_PATH=/root/.cache/presenton/fastembed \
     PRESENTON_FASTEMBED_ICON_CACHE_DIR=/root/.cache/presenton/fastembed-icons \
     PATH="/opt/venv/bin:${PATH}" \
     NODE_ENV=production \
@@ -121,6 +124,7 @@ RUN mkdir -p /app_data/exports /app_data/images /app_data/uploads /app_data/font
 COPY --from=fastapi-builder /opt/venv /opt/venv
 COPY --from=fastapi-builder /app/servers/fastapi /app/servers/fastapi
 COPY --from=fastapi-builder /root/.cache/huggingface /root/.cache/huggingface
+COPY --from=fastapi-builder /root/.cache/presenton/fastembed /root/.cache/presenton/fastembed
 COPY --from=fastapi-builder /root/.cache/presenton/fastembed-icons /root/.cache/presenton/fastembed-icons
 COPY templates /app/templates
 
@@ -128,6 +132,7 @@ COPY --from=assets-builder /app/package.json /app/package.json
 COPY --from=assets-builder /app/document-extraction-liteparse /app/document-extraction-liteparse
 COPY --from=assets-builder /app/presentation-export /app/presentation-export
 COPY --from=assets-builder /app/scripts/sync-presentation-export.cjs /app/scripts/sync-presentation-export.cjs
+COPY --from=assets-builder /app/scripts/export-permissions.cjs /app/scripts/export-permissions.cjs
 
 RUN test -f /app/presentation-export/runner.mjs \
     && test -f /app/presentation-export/node_modules/@presenton/export-core/dist/index.js
@@ -139,6 +144,7 @@ COPY --from=nextjs-builder /app/servers/nextjs/.next-build/static /app/servers/n
 COPY start.js LICENSE NOTICE ./
 COPY scripts/presenton-terminal-banner.mjs /app/scripts/presenton-terminal-banner.mjs
 COPY scripts/user-config-env.cjs /app/scripts/user-config-env.cjs
+COPY scripts/run-node-script.mjs /app/scripts/run-node-script.mjs
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80

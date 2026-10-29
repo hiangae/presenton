@@ -1523,14 +1523,16 @@ class ChatTools:
 
         rows: list[dict[str, Any]] = []
         seen_labels: set[str] = set()
-        segments = re.split(r"[\n;,|]+|\s+\band\b\s+", text, flags=re.IGNORECASE)
+        segments = re.split(
+            r"[\n;,|]+|(?<=\s)\band\b(?=\s)", text, flags=re.IGNORECASE
+        )
         for segment in segments:
             segment = segment.strip(" \t\r\n.:-–—")
             if not segment:
                 continue
             for match in re.finditer(
                 r"(?P<label>[A-Za-z][A-Za-z0-9&'./() -]{0,80}?)"
-                r"\s*(?:[:=\-–—]|\bhas\b|\bhave\b|\bwith\b)?\s+"
+                r"(?:\s*(?:[:=\-–—]|\bhas\b|\bhave\b|\bwith\b))?\s+"
                 r"(?P<value>[-+]?(?:\d[\d,]*(?:\.\d+)?|\.\d+))\b",
                 segment,
                 flags=re.IGNORECASE,
@@ -1559,11 +1561,14 @@ class ChatTools:
         if not text:
             return None
 
-        marker_match = re.search(r"\bdata\s*:\s*(?P<data>.+)$", text, re.IGNORECASE | re.DOTALL)
-        if marker_match:
+        marker_match = re.search(r"\bdata\s*:", text, re.IGNORECASE)
+        if marker_match and marker_match.end() < len(text):
             header_text = text[: marker_match.start()]
             headers = cls._extract_table_headers(header_text)
-            rows = cls._parse_table_rows(marker_match.group("data"))
+            data_text = text[marker_match.end():]
+            # Preserve the previous nonempty capture for whitespace-only input.
+            data_text = data_text.lstrip() or data_text[-1:]
+            rows = cls._parse_table_rows(data_text)
             if headers and rows:
                 normalized_rows = cls._align_table_rows(rows, len(headers))
                 if normalized_rows:
@@ -1582,8 +1587,8 @@ class ChatTools:
     def _extract_table_headers(cls, text: str) -> list[str]:
         patterns = (
             r"\bfirst\s+row\s+with\s+(?P<headers>[^.\n;]+)",
-            r"\bheaders?\s*(?:are|with|:)?\s+(?P<headers>[^.\n;]+)",
-            r"\bcolumns?\s*(?:are|with|:)?\s+(?P<headers>[^.\n;]+)",
+            r"\bheaders?(?:\s*(?:are|with|:))?\s+(?P<headers>[^.\n;]+)",
+            r"\bcolumns?(?:\s*(?:are|with|:))?\s+(?P<headers>[^.\n;]+)",
         )
         for pattern in patterns:
             match = re.search(pattern, text, flags=re.IGNORECASE)
@@ -1610,11 +1615,19 @@ class ChatTools:
 
     @staticmethod
     def _split_table_cells(text: str) -> list[str]:
-        cells = [
-            cell.strip(" \t\r\n.:-–—")
-            for cell in re.split(r"\s*\|\s*|\s*,\s*", text or "")
-        ]
-        return [cell for cell in cells if cell]
+        raw_cells = re.split(r"[|,]", text or "")
+        cells: list[str] = []
+        for index, cell in enumerate(raw_cells):
+            # Only delimiter-adjacent whitespace was consumed by the original
+            # splitter; preserve Unicode whitespace at the outer text edges.
+            if index > 0:
+                cell = cell.lstrip()
+            if index < len(raw_cells) - 1:
+                cell = cell.rstrip()
+            cell = cell.strip(" \t\r\n.:-–—")
+            if cell:
+                cells.append(cell)
+        return cells
 
     @staticmethod
     def _align_table_rows(rows: list[list[str]], column_count: int) -> list[list[str]]:

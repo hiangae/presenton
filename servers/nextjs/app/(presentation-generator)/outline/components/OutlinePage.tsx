@@ -281,7 +281,11 @@ const OutlinePage: React.FC = () => {
 
       dispatch(setPptGenUploadState({ config: draftConfig, files }));
       dispatch(clearOutlines());
-      dispatch(setPresentationId(createResponse.id));
+      // The URL owns the active ID; its sync effect updates Redux. Updating
+      // Redux alone lets the previous URL restore the old ID and stalls SSE.
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.set("id", createResponse.id);
+      router.replace(`/outline?${nextParams.toString()}`, { scroll: false });
       trackEvent(MixpanelEvent.TemplateV2_Outline_Regeneration_Completed, {
         old_presentation_id: presentation_id,
         new_presentation_id: createResponse.id,
@@ -316,6 +320,8 @@ const OutlinePage: React.FC = () => {
     isOutlineReady,
     outlineControlsBusy,
     presentation_id,
+    router,
+    searchParams,
     selectedTemplateId,
   ]);
 

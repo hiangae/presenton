@@ -44,6 +44,7 @@ from utils.process_slides import (
     process_old_and_new_slides_and_fetch_assets,
     process_slide_and_fetch_assets,
 )
+from utils.safe_logging import safe_log
 
 LOGGER = logging.getLogger(__name__)
 MAX_SCHEMA_ERRORS = 10
@@ -2848,13 +2849,13 @@ class PresentationChatMemoryLayer:
             query,
         )
         if context:
-            LOGGER.info(
+            safe_log(LOGGER, logging.INFO,
                 "Chat memory semantic context hit (presentation_id=%s, chars=%d)",
                 self._presentation_id,
                 len(context),
             )
         else:
-            LOGGER.info(
+            safe_log(LOGGER, logging.INFO,
                 "Chat memory semantic context miss (presentation_id=%s)",
                 self._presentation_id,
             )

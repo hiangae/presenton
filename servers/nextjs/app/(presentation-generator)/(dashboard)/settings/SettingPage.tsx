@@ -9,6 +9,7 @@ import {
   handleSaveLLMConfig,
 } from "@/utils/storeHelpers";
 import { isOllamaModelAvailable } from "@/utils/providerUtils";
+import { providerSetupNavigationAction } from "@/lib/provider-setup-navigation";
 import { useRouter, usePathname } from "next/navigation";
 import { LLMConfig } from "@/types/llm_config";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
@@ -372,12 +373,12 @@ const SettingsPage = () => {
         const href = link.getAttribute("href");
         const targetAttr = link.getAttribute("target");
 
-        if (
-          href &&
-          href !== "#" &&
-          !href.startsWith("javascript:") &&
-          targetAttr !== "_blank"
-        ) {
+        const action = providerSetupNavigationAction(href, targetAttr, window.location.href);
+        if (action === "block") {
+          e.preventDefault();
+          return;
+        }
+        if (action === "warn") {
 
           notify.warning(
             "Provider setup required",

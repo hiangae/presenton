@@ -20,7 +20,6 @@ from utils.image_provider import get_selected_image_provider
 from enums.image_provider import ImageProvider
 import os
 import uuid
-from utils.file_utils import get_file_name_with_random_uuid
 
 IMAGES_ROUTER = APIRouter(prefix="/images", tags=["Images"])
 
@@ -225,12 +224,13 @@ async def upload_image(
 ):
     try:
         content = await _read_validated_image_upload(file)
-        new_filename = get_file_name_with_random_uuid(file)
-        image_path = os.path.join(
-            get_images_directory(), os.path.basename(new_filename)
+        extension = next(
+            allowed for allowed in ALLOWED_UPLOAD_IMAGE_EXTENSIONS
+            if (file.filename or "").lower().endswith(allowed)
         )
+        image_path = os.path.join(get_images_directory(), f"{uuid.uuid4()}{extension}")
 
-        with open(image_path, "wb") as f:
+        with open(image_path, "xb") as f:
             f.write(content)
 
         image_asset = ImageAsset(path=image_path, is_uploaded=True)

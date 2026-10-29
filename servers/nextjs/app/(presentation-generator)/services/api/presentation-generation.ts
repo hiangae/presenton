@@ -21,6 +21,14 @@ export type BlankPresentationResponse = {
 };
 
 export class PresentationGenerationApi {
+  static async regenerateSmartPresentation(id: string): Promise<void> {
+    const response = await fetch(
+      getApiUrl(`/api/v1/ppt/presentation/${id}/regenerate`),
+      { method: "POST", headers: getHeader() }
+    );
+    await ApiResponseHandler.handleResponse(response, "Failed to regenerate presentation");
+  }
+
   static async uploadDoc(documents: File[]) {
     const formData = new FormData();
 
@@ -143,13 +151,18 @@ export class PresentationGenerationApi {
     }
   }
 
-  static async createBlankPresentation(): Promise<BlankPresentationResponse> {
+  static async createBlankPresentation(
+    templateId?: string
+  ): Promise<BlankPresentationResponse> {
     try {
       const response = await fetch(
         getApiUrl(`/api/v1/ppt/presentation/create/blank`),
         {
           method: "POST",
           headers: getHeader(),
+          body: templateId
+            ? JSON.stringify({ template_id: templateId })
+            : undefined,
           cache: "no-cache",
         }
       );

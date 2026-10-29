@@ -133,7 +133,7 @@ def normalize_font_family_name(raw_name: str) -> str:
         return raw_name
     name = raw_name.replace("_", " ").replace("-", " ")
     name = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", name)
-    name = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1 \2", name)
+    name = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", name)
     name = re.sub(r"\s+", " ", name).strip()
     lower_name = name.lower()
     for style in sorted(_STYLE_TOKENS, key=len, reverse=True):
